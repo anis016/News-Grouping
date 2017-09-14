@@ -1,2 +1,37 @@
 DATABASE_NAME = "businessData"
 MONGO_URI = "mongodb://localhost:27017/"
+
+## Test Datasets
+data_set1 = '''
+ Transaction-could be announced at Farnborough Airshow in July
+
+Volga-Dnepr in talks for at least 10 Boeing 747-8 freighters
+
+Boeing Co. is nearing a $4 billion deal with Russia’s largest air-freight company that would help extend the life of the iconic, hump-nosed 747 jumbo jet amid waning demand for four-engine aircraft, people close to the transaction said.
+'''
+
+data_set2 = '''
+ WAUKEGAN, Ill. (AP) - The Waukegan School Board has approved a New Jersey company's $3 million donation of solar panels for seven school buildings.
+
+The (Lake County) News-Sun reports (http://trib.in/28J5Mn7 ) the project with NRG was delayed a year because of school officials’ concerns about the district’s liability if something happened to the equipment. A subcontractor will be required to meet standards the board demands.
+
+NRG spokesman David Gaier says the company plans to complete installation by the end of August with energy delivery beginning by year’s end.
+
+Gaier says each solar station will produce its own statistics about energy production, temperature, wind speed and more. NRG also supplies an energy-related curriculum for use in the classroom.
+
+School board vice president Rick Riddle is pleased with the educational opportunity provided.
+
+___
+
+Information from: Lake County News-Sun, http://newssun.chicagotribune.com/
+'''
+
+# This is the Test dataSet for the possible match/non-match
+data_set3 = '''
+hello
+hello-world
+company's
+asd890
+--- ?? +++ (AL)
+http://something
+'''
