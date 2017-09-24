@@ -1,9 +1,10 @@
-from mongo.Mongo import *
+from mongo.MongoDB import *
 
-mongo = MongoDB()
-mongo.initialzie()
+if __name__ == '__main__':
+    mongo = MongoDB()
+    mongo.initialzie()
 
-print(mongo.get_all_collections())
+    print(mongo.get_all_collections())
 
 # mongo.create_collection("testCollection")
 # print(mongo.get_all_collections())
@@ -11,4 +12,4 @@ print(mongo.get_all_collections())
 # mongo.drop_collection("testCollection")
 # print(mongo.get_all_collections())
 
-mongo.describe_collection("newsCollection")
+# mongo.describe_collection("newsCollection")

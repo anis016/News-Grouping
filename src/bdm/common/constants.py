@@ -1,5 +1,10 @@
 DATABASE_NAME = "businessData"
 MONGO_URI = "mongodb://localhost:27017/"
+COLLECTION_NEWS = "newsCollection"
+COLLECTION_SUBSETNEWS = "newsSubsetCollection"
+COLLECTION_STOCK = "stockCollection"
+COLLECTION_TEST  = "testCollection"
+COLLECTION_SUBSETTEST = "testSubsetCollection"
 
 ## Test Datasets
 data_set1 = '''
@@ -35,3 +40,17 @@ asd890
 --- ?? +++ (AL)
 http://something
 '''
+
+
+data_set4= '''
+'WASHINGTON, June 20, 2016 /PRNewswire-USNewswire/ -- SHRM: 20-Year Employee Benefits Trends in the United States -- Now and Then. Telecommuting, bonuses...'
+'''
+
+news_source = [
+"http://www.prnewswire.com/news-releases/shrm-20-year-employee-benefits-trends-in-the-united-states--now-and-then-300286640.html",
+"http://www.spacedaily.com/reports/NASA_Electric_Research_Plane_Gets_X_Number_New_Name_999.html",
+"http://www.bloomberg.com/news/articles/2016-06-20/boeing-said-near-4-billion-deal-with-russian-firm-to-save-747",
+"https://www.bostonglobe.com/business/2016/06/20/india-makes-easier-for-foreign-firms-invest-many-industries/GIzrXlcVBwFtPvCVwNknNM/story.html",
+"http://www.marketwatch.com/story/djia-points-to-200-point-gain-as-polls-show-brexit-support-weakening-2016-06-20"
+# "http://www.washingtontimes.com/news/2016/jun/20/company-to-donate-solar-energy-systems-to-7-waukeg"
+]
