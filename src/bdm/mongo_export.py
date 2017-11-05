@@ -39,6 +39,8 @@ if __name__ == '__main__':
         idx_list = idx_list[0].split(",")
         idx_list = idx_list[:len(idx_list)-1] # remove the last item which is empty
 
+    # print(len(idx_list))
+
     try:
 
         news_cursor = mongoOb.find(CONSTANTS.COLLECTION_NEWS)

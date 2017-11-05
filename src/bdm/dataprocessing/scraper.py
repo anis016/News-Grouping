@@ -1,4 +1,4 @@
-from curses.ascii import *
+from curses.ascii import isalnum
 
 import common.utils as UTILS
 import common.constants as CONSTANTS
