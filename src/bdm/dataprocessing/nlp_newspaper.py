@@ -1,17 +1,16 @@
-import pandas as pd
-import numpy as np
+import re
 
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from mongo.MongoDB import *
-import common.constants as CONSTANTS
-from common.utils import *
-
-import os
-import sys
 from string import punctuation
+
+import src.bdm.common.constants as CONSTANTS
+from src.bdm.common.errors import Error
+from src.bdm.common.utils import get_mongo_value
+from src.bdm.mongo.MongoDB import MongoDB
+
 
 class ArticleNLP:
 

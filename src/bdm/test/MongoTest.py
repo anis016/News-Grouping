@@ -1,4 +1,4 @@
-from mongo.MongoDB import *
+from src.bdm.mongo.MongoDB import *
 
 if __name__ == '__main__':
     mongo = MongoDB()

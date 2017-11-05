@@ -1,9 +1,9 @@
-from mongo.MongoDB import *
-from dataprocessing.scraper import *
-import common.constants as CONSTANTS
+from src.bdm.common.utils import get_mongo_value, mongo_preconditions
+from src.bdm.mongo.MongoDB import *
+from src.bdm.dataprocessing.scraper import *
+import src.bdm.common.constants as CONSTANTS
 import os
 import sys
-from common.utils import *
 
 if __name__ == '__main__':
 

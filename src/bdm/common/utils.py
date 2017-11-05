@@ -6,7 +6,7 @@ import urllib3
 import newspaper
 import datefinder
 
-import common.constants as CONSTANTS
+import src.bdm.common.constants as CONSTANTS
 
 def convertTimeStampToDataTime(timeStamp):
     return datetime.datetime.fromtimestamp(int(timeStamp)).strftime("%Y-%m-%d")
