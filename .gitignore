@@ -77,3 +77,5 @@ bdm_venv
 
 # bdm related files
 /src/resources/businessData/
+/src/bdm/data/idx_file.txt
+/src/bdm/data/processed_file.txt
