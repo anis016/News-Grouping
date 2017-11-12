@@ -74,3 +74,6 @@ bdm_venv
 
 # mypy
 .mypy_cache/
+
+# bdm related files
+/src/resources/businessData/

@@ -35,6 +35,13 @@ def parse_date(article):
         if publish_date is not None:
             return publish_date.date()
 
+def is_number(s):
+    try:
+        float(s) if '.' in s else int(s)
+        return True
+    except ValueError:
+        return False
+
 def is_date(st):
     try:
         parse(st) # dateutil parser.parse
