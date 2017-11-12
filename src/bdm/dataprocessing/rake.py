@@ -174,8 +174,8 @@ class Rake():
         return candidate_keywords
 
 
-    def compute_keywords(self):
-        sentence_list     = rake.split_sentence(text)
+    def compute_keywords(self, text):
+        sentence_list     = self.split_sentence(text)
         phrase_list       = self.generate_candidate_keywords(sentence_list, self.stopwords_pattern)
         word_scores       = self.calculate_word_scores(phrase_list)
         candidate_keyword = self.generate_candidate_keywords_score(phrase_list, word_scores)
@@ -187,5 +187,5 @@ if __name__ == '__main__':
     text = '''The Waukegan School Board has approved a New Jersey company's $3 million donation of solar panels for seven school buildings. The (Lake County) News-Sun reports the project with NRG was delayed a year because of school officials’ concerns about the district’s liability if something happened to the equipment. A subcontractor will be required to meet standards the board demands. NRG spokesman David Gaier says the company plans to complete installation by the end of August with energy delivery beginning by year’s end. Gaier says each solar station will produce its own statistics about energy production, temperature, wind speed and more. NRG also supplies an energy-related curriculum for use in the classroom. School board vice president Rick Riddle is pleased with the educational opportunity provided.'''
 
     rake = Rake()
-    candidate_keywords = rake.compute_keywords()
+    candidate_keywords = rake.compute_keywords(text)
     pprint(candidate_keywords)
