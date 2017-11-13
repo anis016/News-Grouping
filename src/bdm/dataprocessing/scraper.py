@@ -15,7 +15,7 @@ import re
 import types
 
 from src.bdm.common.utils import is_date_timestamp
-
+from src.bdm.common.utils import is_connected
 
 class ArticleScrape:
 
@@ -68,6 +68,14 @@ class ArticleScrape:
 
         try:
             article = newspaper.Article(source_news)
+
+            # code that checks if internet connection is present!
+            # if not present stop the process
+
+            if is_connected() is False:
+                print("Internet Connection disrupted! Article's cannot be downloaded.")
+                sys.exit(1)
+
             article.download()
             article.parse()
 
@@ -196,10 +204,12 @@ class ArticleScrape:
         rm_whitespace     = self.__remove_whitespace(data)
         normalize_unicode = self.__normalize_unicode(rm_whitespace)
         rm_website        = self.__remove_website(normalize_unicode)
-        rm_nonaplhanumer  = self.__remove_nonaplhanumer(rm_website)
+        # rm_nonaplhanumer  = self.__remove_nonaplhanumer(rm_website)
 
         # print("cleaned: " + rm_nonaplhanumer + "\n")
-        return rm_nonaplhanumer
+        # return rm_nonaplhanumer
+
+        return rm_website
 
 
 if __name__ == "__main__":
