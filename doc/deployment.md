@@ -71,7 +71,7 @@ $ git clone git@gitmrcc.iti.cs.ovgu.de:matpohl/businessDataMatching.git
 *Start ssh agent and add private key for authenticatoin as follow:*
 
 ```
-$ eval ssh-agent -s
+$ eval `ssh-agent -s`
 $ ssh-add /home/student/.ssh/id_rsa
 
 ```
