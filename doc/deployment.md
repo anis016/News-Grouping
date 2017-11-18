@@ -27,7 +27,6 @@ $ sudo nano /home/student/.bashrc
 *Included following snippet at the end of file*
 
 ```
-
 alias python=python3.6
 alias pip=pip3.6
 export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3.6
@@ -45,12 +44,14 @@ $ sudo nano /home/student/.ssh/config
 
 *Placed following snippet in the file*
 
-```Host gitmrcc.iti.cs.ovgu.de
+```
+Host gitmrcc.iti.cs.ovgu.de
     StrictHostKeyChecking no	
     UserKnownHostsFile /dev/null	
     HostName gitmrcc.iti.cs.ovgu.de	
     Port 2222	
     User muashraf
+    
 ```
 
 *Placed public(id_rsa.pub) and private(id_rsa) ssh keys in the same .ssh folder.*
@@ -59,8 +60,10 @@ $ sudo nano /home/student/.ssh/config
 ###### Cloned repo
 
 
-```$ cd /home/student/
-	$ git clone git@gitmrcc.iti.cs.ovgu.de:matpohl/businessDataMatching.git
+```
+$ cd /home/student/
+$ git clone git@gitmrcc.iti.cs.ovgu.de:matpohl/businessDataMatching.git
+
 ```
 ###### Latest pull
 
@@ -70,12 +73,15 @@ $ sudo nano /home/student/.ssh/config
 ```
 $ eval ssh-agent -s
 $ ssh-add /home/student/.ssh/id_rsa
+
 ```
 
 *Now take pull*
 
-```$ cd /home/student/businessDataMatching
-	$ git pull git@gitmrcc.iti.cs.ovgu.de:matpohl/businessDataMatching.git
+```
+$ cd /home/student/businessDataMatching
+$ git pull git@gitmrcc.iti.cs.ovgu.de:matpohl/businessDataMatching.git
+
 ```
 
 ## Virtual environment configuration
@@ -89,8 +95,10 @@ $ pip install virtualenv
 
 *Moved back to project directory and created virtualenv*
 
-```$ cd /home/student/businessDataMatching
-	$ virtualenv bdm_venv
+```
+$ cd /home/student/businessDataMatching
+$ virtualenv bdm_venv
+
 ```
 
 *activated virtualenv using* `$ source bdm_venv/bin/activate`
@@ -102,6 +110,7 @@ $ pip install virtualenv
 ```
 *self_spec:
 + %{!r:%{!fpie:%{!fPIE:%{!fpic:%{!fPIC:%{!fno-pic:-fno-PIE}}}}}}
+
 ```
 
 *Added the specs to `no-pie-link.specs` file using* `$ nano /usr/share/dpkg/no-pie-link.specs` and then added:
@@ -109,6 +118,7 @@ $ pip install virtualenv
 ```
 *self_spec:
 + %{!shared:%{!r:%{!fPIE:%{!pie:-fno-PIE -no-pie}}}}
+
 ```
 
 ###### Installed following common packages:
