@@ -9,10 +9,12 @@ $ sudo nano /etc/apt/sources.list
 
 *Included following snippet after* `deb http://ftp.de.debian.org/debian testing main`
 
-```$ echo 'APT::Default-Release "stable";' | sudo tee -a /etc/apt/apt.conf.d/00local
-	$ sudo apt-get update
-	$ sudo apt-get -t testing install python3.6
-	$ python3.6 -V
+```
+$ echo 'APT::Default-Release "stable";' | sudo tee -a /etc/apt/apt.conf.d/00local
+$ sudo apt-get update
+$ sudo apt-get -t testing install python3.6
+$ python3.6 -V
+	
 ```
 
 ###### Set Alias & Paths
@@ -24,9 +26,12 @@ $ sudo nano /home/student/.bashrc
 
 *Included following snippet at the end of file*
 
-```alias python=python3.6
-    alias pip=pip3.6
-    export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3.6
+```
+
+alias python=python3.6
+alias pip=pip3.6
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3.6
+
 ```
 
 ## Git configuration 
