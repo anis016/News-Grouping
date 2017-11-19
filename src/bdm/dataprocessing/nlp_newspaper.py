@@ -6,10 +6,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from string import punctuation
 
-import src.bdm.common.constants as CONSTANTS
-from src.bdm.common.errors import Error
-from src.bdm.common.utils import get_mongo_value
-from src.bdm.mongo.MongoDB import MongoDB
+import common.constants as CONSTANTS
+from common.errors import Error
+from common.utils import get_mongo_value
+from mongo.MongoDB import MongoDB
 
 
 class ArticleNLP:

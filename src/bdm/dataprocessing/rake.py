@@ -4,7 +4,6 @@ Book: Text Mining Applications and Theory, by: Michael W. Berry, Jacob Kogan
 """
 import re
 import os
-import operator
 from pprint import pprint
 
 import nltk

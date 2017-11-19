@@ -10,10 +10,6 @@ import common.constants as CONSTANTS
 from mongo.MongoDB import MongoDB
 from dataprocessing.scraper import ArticleScrape
 
-# from src.bdm.common.utils import get_mongo_value, mongo_preconditions
-# from src.bdm.mongo.MongoDB import *
-# from src.bdm.dataprocessing.scraper import *
-# import src.bdm.common.constants as CONSTANTS
 
 if __name__ == '__main__':
 
