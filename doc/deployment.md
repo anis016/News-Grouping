@@ -33,6 +33,12 @@ export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3.6
 
 ```
 
+*Reload .bashrc without logging out*
+
+```
+$ source /home/student/.bashrc
+```
+
 ## Git configuration 
 
 ###### Setup Git 
