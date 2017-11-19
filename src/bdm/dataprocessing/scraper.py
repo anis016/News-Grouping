@@ -1,21 +1,19 @@
 from curses.ascii import isalnum
 
-import src.bdm.common.utils as UTILS
-import src.bdm.common.constants as CONSTANTS
-import src.bdm.common.errors as ERRORS
+import common.utils as UTILS
+import common.constants as CONSTANTS
+import common.errors as ERRORS
+
 from bs4 import BeautifulSoup
-from bs4.element import Comment
-import urllib
 
 import newspaper
 
 import sys
 import unicodedata
 import re
-import types
 
-from src.bdm.common.utils import is_date_timestamp
-from src.bdm.common.utils import is_connected
+from common.utils import is_date_timestamp
+from common.utils import is_connected
 
 class ArticleScrape:
 

@@ -1,6 +1,7 @@
 from pymongo import errors
 from pymongo import MongoClient
-import src.bdm.common.constants as CONSTANTS
+
+import common.constants as CONSTANTS
 
 class MongoDB:
 

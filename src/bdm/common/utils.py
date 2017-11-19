@@ -1,14 +1,8 @@
 import datetime
 import socket
-
 from dateutil.parser import parse
 import re
-import urllib3
-
-import newspaper
 import datefinder
-
-import src.bdm.common.constants as CONSTANTS
 
 def convertTimeStampToDataTime(timeStamp):
     return datetime.datetime.fromtimestamp(int(timeStamp)).strftime("%Y-%m-%d")

@@ -1,9 +1,19 @@
-from src.bdm.common.utils import get_mongo_value, mongo_preconditions
-from src.bdm.mongo.MongoDB import *
-from src.bdm.dataprocessing.scraper import *
-import src.bdm.common.constants as CONSTANTS
-import os
 import sys
+# trick to resolve import issue:
+# use sys.path to see till what path python sees, then use the path after that.
+# print(sys.path)
+
+import os
+import common.utils as utils
+import common.constants as CONSTANTS
+
+from mongo.MongoDB import MongoDB
+from dataprocessing.scraper import ArticleScrape
+
+# from src.bdm.common.utils import get_mongo_value, mongo_preconditions
+# from src.bdm.mongo.MongoDB import *
+# from src.bdm.dataprocessing.scraper import *
+# import src.bdm.common.constants as CONSTANTS
 
 if __name__ == '__main__':
 
@@ -57,12 +67,12 @@ if __name__ == '__main__':
                     # mongoOb.delete(CONSTANTS.COLLECTION_TEST, {"id": mongo_id})
 
                     # Collect mongo columns - all and then check for url
-                    mongo_link = get_mongo_value("link", document)
-                    mongo_source = get_mongo_value("source", document)
-                    mongo_title = get_mongo_value("title", document)
-                    mongo_country = get_mongo_value("country", document)
-                    mongo_timestamp = get_mongo_value("timestamp", document)
-                    mongo_connected = get_mongo_value("connected", document)
+                    mongo_link = utils.get_mongo_value("link", document)
+                    mongo_source = utils.get_mongo_value("source", document)
+                    mongo_title = utils.get_mongo_value("title", document)
+                    mongo_country = utils.get_mongo_value("country", document)
+                    mongo_timestamp = utils.get_mongo_value("timestamp", document)
+                    mongo_connected = utils.get_mongo_value("connected", document)
 
                     # if is_website(mongo_link):
                     #     url = mongo_link
@@ -135,7 +145,7 @@ if __name__ == '__main__':
                                         }
 
                         if json_error == "False":
-                            processed = mongo_preconditions(**document_json)
+                            processed = utils.mongo_preconditions(**document_json)
                             document_json["processed"] = processed
                         else:
                             document_json["processed"] = json_error
