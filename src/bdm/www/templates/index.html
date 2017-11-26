@@ -1,0 +1,14 @@
+{% load staticfiles %}
+<!--DOCTYPE html-->
+<html>
+<head>
+<title>Business Data Matching</title>
+    <script type="text/javascript" src='{% static "d3.min.js" %}'></script>
+</head>
+<body>
+
+{% for n in News %}
+      <h2> {{ n.title }} </h2>
+{% endfor %}
+</body>
+</html>
