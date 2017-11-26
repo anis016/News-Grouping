@@ -44,9 +44,9 @@ coverage.xml
 *.cover
 .hypothesis/
 
-# Django stuff:
-*.log
-local_settings.py
+# Django
+src/bdm/www/www/local_settings.py
+src/bdm/www/db.sqlite3
 
 # IDEA stuff:
 .idea
