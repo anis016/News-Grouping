@@ -2,14 +2,20 @@
 # tf-tdf(w) = tf(w) * idf(w)
 # where, tf(w) = (Num. of times the word appears in a docs) / (Total Num. of words in the docs)
 # idf(w) = log(Num. of docs / Num. of docs that contain word w)
+import collections
 import re
 import os
 from pprint import pprint
 
+import math
 import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from nltk.corpus import stopwords
+from nltk.stem.snowball import PorterStemmer
+
+from similarity_function import cosine_similarity
+
 
 def path_step_back(path):
     path = str(path).split("/")
@@ -19,17 +25,17 @@ def path_step_back(path):
     else:
         return "Path Error!"
 
-def path_reader(src_file):
+def path_reader(src_file, path):
 
-    src_dir    = os.getcwd()
-    parent_dir = path_step_back(src_dir)
+    str_path = str(path).split("/")
+    if str_path[len(str_path)-1] != 'bdm':
+        path = path_step_back(path)
 
-    file_path  = os.path.join(parent_dir + '/data/', src_file)
+    file_path  = os.path.join(path + '/data/', src_file)
     if os.path.exists(file_path):
         return file_path
     else:
         print("Path Error")
-
 
 def is_number(s):
     try:
@@ -56,16 +62,16 @@ def get_wordnet_pos(treebank_tag):
 
 class TFIDF():
 
-    def __init__(self):
-        self.build_stopwords()
+    def __init__(self, path):
+        self.build_stopwords(path)
 
-    def build_stopwords(self):
+    def build_stopwords(self, path):
         # add nltk stopwords
         stopwords_lists = stopwords.words('english')
 
         # add more stopwords from the salton paper
         src_file = "stopwords.txt"
-        file_path = path_reader(src_file)
+        file_path = path_reader(src_file, path)
         with open(file_path, "r") as file:
             for line in file:
                 # remove the "\n" from end of the words
@@ -91,42 +97,37 @@ class TFIDF():
             lemmatized_phrase_lists.append(lemmatizer.lemmatize(word, pos=tagged))
         return " ".join(lemmatized_phrase_lists)
 
+    def stemming_phrases(self, phrase):
+        porter_stemmer = PorterStemmer()
+        tokenize = [docs for docs in phrase.split(" ")]
+        stemmazied_phrase_lists = []
+        for word in tokenize:
+            stemmazied_phrase_lists.append(porter_stemmer.stem(word))
+        return " ".join(stemmazied_phrase_lists)
 
-    def computeTF(self, wordDict, bow):
-        tfDict = {}
-        bowCount = len(bow)
-        for word, count in wordDict.items():
-            # bowCount: Total Num. of words in the docs
-            # count   : Num. of times the word appears in a docs
-            tfDict[word] = count / float(bowCount)
-        return tfDict
+    def term_frequency(self, term, tokenized_document):
+        # The method count() returns the number of occurrences of substring
+        # term in the string tokenized_document
+        return tokenized_document.count(term)
 
+    ## normalization: 1st way (log normalization)
+    # tf(t, d) = 1 + log(f(t, d))
+    def logarithmic_scaled_frequency(self, term, tokenized_document):
+        counter = tokenized_document.count(term)
+        # logarithmically scaled frequency: tf(t,d) = log ( 1 + ft,d), or zero if ft,d is zero;
+        if counter == 0:
+            return 0
+        return 1 + math.log(counter)
 
-    def computeIDF(self, docList):
-        import math
-        idfDict = {}
-        N = len(docList)  # number of documents
-
-        # count the number of documents that contain a word w
-        idfDict = dict.fromkeys(docList[0].keys(), 0)
-        for doc in docList:
-            for word, value in doc.items():
-                if value > 0:
-                    idfDict[word] += 1
-
-        # divide N by denominator above, take the log of that
-        for word, value in idfDict.items():
-            idfDict[word] = math.log(N / float(value))
-
-        return idfDict
-
-    def computeTFIDF(self, tfBow, idfs):
-        tfidf = {}
-        for word, value in tfBow.items():
-            tfidf[word] = value * idfs[word]
-
-        sorted_tfidf = sorted(tfidf.items(), key=lambda arg: arg[1], reverse=True)
-        return sorted_tfidf
+    ## Calculate the IDF (Inverse Document Frequencies)
+    # idf(t, D) = log(N/|{d is an element of D : t is an element of d}|)
+    def inverse_document_frequencies(self, tokenized_documents):
+        idf_values = {}
+        all_tokens_set = set([item for sublist in tokenized_documents for item in sublist])
+        for tkn in all_tokens_set:
+            contains_token = map(lambda doc: tkn in doc, tokenized_documents)
+            idf_values[tkn] = 1 + math.log(len(tokenized_documents) / (sum(contains_token)))
+        return idf_values
 
     def split_sentence(self, text):
         """
@@ -157,41 +158,85 @@ class TFIDF():
                 phrase = phrase.strip().lower()
                 if phrase != "":
                     # phrase = self.lemmatize_phrases(phrase)
+                    phrase = self.stemming_phrases(phrase)
                     word_bags = self.separate_words(phrase)
                     tokenized_lists = tokenized_lists + word_bags
         return tokenized_lists
 
-    def processTFIDF(self, all_docs):
-        # calculate word-set
-        tokenized_document = []
-        for docs in all_docs:
-            sentence_list = self.split_sentence(docs)
+    def tfidf(self, documents):
+        # break each document into list of tokenized document
+        tokenized_documents = []
+        for document in documents:
+            sentence_list = self.split_sentence(document)
             tokenize_sentence = self.tokenize_document(sentence_list, self.stopwords_pattern)
-            tokenized_document.append(tokenize_sentence)
+            tokenized_documents.append(tokenize_sentence)
 
-        wordSet = set([word for document_list in tokenized_document for word in document_list])
+        # idf holds the set of the all the terms in the documents
+        idf = self.inverse_document_frequencies(tokenized_documents)
+        tfidf_documents = []
+        for document in tokenized_documents:
+            doc_tfidf = []
+            # go through each of the terms in the idf and calculate the tf*idf value
+            for term in idf.keys():
+                tf = self.logarithmic_scaled_frequency(term, document)
+                doc_tfidf.append(tf * idf[term])
 
-        tfs = []
-        all_wordDict = []
-        for docs in tokenized_document:
-            wordDict = dict.fromkeys(wordSet, 0)
-            for word in docs:
-                wordDict[word] += 1
-            all_wordDict.append(wordDict)
-            tfs.append(self.computeTF(wordDict, docs))
-
-        idfs = self.computeIDF(all_wordDict)
-
-        tfidf = []
-        for tf in tfs:
-            tfidf.append(self.computeTFIDF(tf, idfs))
-
-        return tfidf
+            tfidf_documents.append(doc_tfidf)
+        return tfidf_documents
 
     def compute_keywords(self, all_docs):
-        tfidf = self.processTFIDF(all_docs)
-        pprint(tfidf)
+        tfidf = self.tfidf(all_docs)
+        return tfidf
 
+def flip(flag):
+    if flag is True:
+        return False
+    else:
+        return True
+
+groups = collections.defaultdict(set)
+group_value = 0
+
+def transitive_closure(v1, v2):
+    global group_value
+
+    if len(groups) == 0:
+        key = "group" + str(group_value)
+        groups[key].add(v1)
+        groups[key].add(v2)
+        group_value += 1
+    else:
+        flagv1 = False
+        flagv2 = False
+        which_group = ""
+        for key, value in groups.items():
+            if v1 in value and v2 in value:
+                which_group = key
+                flagv2 = False
+                flagv1 = False
+                break
+            elif v1 not in value and v2 in value:
+                which_group = key
+                flagv1 = True
+                flagv2 = False
+                break
+            elif v1 in value and v2 not in value:
+                which_group = key
+                flagv1 = False
+                flagv2 = True
+                break
+            elif v1 not in value and v2 not in value:
+                flagv1 = True
+                flagv2 = True
+
+        if flagv1 == True and flagv2 == True:
+            key = "group" + str(group_value)
+            groups[key].add(v1)
+            groups[key].add(v2)
+            group_value += 1
+        else:
+            groups[which_group].add(v1)
+            groups[which_group].add(v2)
 
 if __name__ == '__main__':
     document_0 = "China has a strong economy that is growing at a rapid pace. However politically it differs greatly from the US Economy."
@@ -201,8 +246,27 @@ if __name__ == '__main__':
     document_4 = "What's the future of Abenomics? We asked Shinzo Abe for his views"
     document_5 = "Obama has eased sanctions on Cuba while accelerating those against the Russian Economy, even as the Ruble's value falls almost daily."
     document_6 = "Vladimir Putin is riding a horse while hunting deer. Vladimir Putin always seems so serious about things - even riding horses. Is he crazy?"
+    document_7 = "Japan's prime minister, Shinzo Abe, is working towards healing the economic turmoil in his own country for his view on the future of his people."
+    document_8 = "China has a strong economy that is growing at a rapid pace. However politically it differs greatly from the US Economy."
+    document_9 = "Vladimir Putin is working hard to fix the economy in Russia as the Ruble has tumbled."
 
     all_documents = [document_0, document_1, document_2, document_3, document_4, document_5, document_6]
 
-    tfidf = TFIDF()
-    tfidf.compute_keywords(all_documents)
+    path = os.getcwd()
+    tfidf = TFIDF(path)
+    result = tfidf.compute_keywords(all_documents)
+    # pprint(result)
+
+    docs_comparision = []
+    for docs_id1 in range(0, len(result)):
+        docs_score1 = result[docs_id1]
+        for docs_id2 in range(docs_id1 + 1, len(result)):
+            docs_score2 = result[docs_id2]
+
+            similarity_score = cosine_similarity(docs_score1, docs_score2)
+
+            if similarity_score > 0.1:
+                transitive_closure(docs_id1, docs_id2)
+                docs_comparision.append((docs_id1, docs_id2))
+    pprint(groups)
+    pprint(docs_comparision)
