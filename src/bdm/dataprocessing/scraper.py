@@ -18,11 +18,9 @@ from common.utils import is_connected
 class ArticleScrape:
 
     def __init__(self):
-        self.id = None
         self.title = None
         self.description = None
         self.publish_date = None
-        # self.publish_date_found = None
         self.meta_keywords = []
         self.meta_description = None
         self.newsConnection = []
@@ -62,7 +60,7 @@ class ArticleScrape:
 
         return keywords_list
 
-    def extract_text(self, source_news, publish_date, id=None):
+    def extract_text(self, source_news, publish_date):
 
         try:
             article = newspaper.Article(source_news)
@@ -71,13 +69,12 @@ class ArticleScrape:
             # if not present stop the process
 
             if is_connected() is False:
-                print("Internet Connection disrupted! Article's cannot be downloaded.")
+                print("Internet Connection disrupted! Exiting the process.")
                 sys.exit(1)
 
             article.download()
             article.parse()
 
-            self.id = id
             self.title = article.title
             self.description = article.text
             self.meta_keywords = article.meta_keywords
@@ -106,7 +103,6 @@ class ArticleScrape:
             return self.jsonify()
 
         except newspaper.ArticleException as err:
-            self.id = id
             self.title = None
             self.description = None
             self.meta_keywords = []
@@ -117,7 +113,6 @@ class ArticleScrape:
 
             return self.jsonify()
         except Exception as err:
-            self.id = id
             self.title = None
             self.description = None
             self.meta_keywords = []
@@ -142,7 +137,6 @@ class ArticleScrape:
         # print("--------------------------------------------------")
 
         return {
-            "id":                 self.id,
             "title":              self.title,
             "description":        self.description,
             "publish_date":       self.publish_date,
