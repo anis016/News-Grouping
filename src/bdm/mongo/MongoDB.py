@@ -13,9 +13,12 @@ class MongoDB:
         client = MongoClient(MongoDB.URI)
         MongoDB.DATABASE = client[CONSTANTS.DATABASE_NAME]
 
+        return MongoDB.DATABASE
+
     @staticmethod
     def insert(collection, data):
-        MongoDB.DATABASE[collection].insert(data)
+        result = MongoDB.DATABASE[collection].insert_one(data)
+        return result
 
     @staticmethod
     def find_one(collection, query=None):
@@ -42,6 +45,13 @@ class MongoDB:
     @staticmethod
     def get_all_collections():
         return MongoDB.DATABASE.collection_names(include_system_collections=False);
+
+    @staticmethod
+    def check_collection_exists(collection):
+        collections = MongoDB.get_all_collections()
+        if collection in collections:
+            return True
+        return False
 
     @staticmethod
     def create_collection(name):
