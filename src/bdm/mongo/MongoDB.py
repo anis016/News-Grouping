@@ -1,4 +1,4 @@
-from pymongo import errors
+from pymongo import errors, ASCENDING, IndexModel
 from pymongo import MongoClient
 
 import common.constants as CONSTANTS
@@ -54,9 +54,12 @@ class MongoDB:
         return False
 
     @staticmethod
-    def create_collection(name):
+    def create_collection(name, field=None):
         try:
             MongoDB.DATABASE.create_collection(name);
+            if field != None:
+                index_field = IndexModel([(field, ASCENDING)])
+                MongoDB.DATABASE[name].create_indexes([index_field])
         # http://api.mongodb.com/python/current/api/pymongo/errors.html
         except errors.CollectionInvalid as e:
             print(e)

@@ -24,11 +24,10 @@ def path_step_back(path):
     else:
         return "Path Error!"
 
-def path_reader(src_file, path):
+def path_reader(src_file):
 
-    str_path = str(path).split("/")
-    if str_path[len(str_path)-1] != 'bdm':
-        path = path_step_back(path)
+    dirname, filename = os.path.split(os.path.abspath(__file__))
+    path = path_step_back(dirname)
 
     file_path  = os.path.join(path + '/data/', src_file)
     if os.path.exists(file_path):
@@ -61,10 +60,9 @@ def is_number(s):
 
 class Rake():
 
-    def __init__(self, stop_words_path, min_char_length=2, max_words_length=3, min_keyword_frequency=1,
+    def __init__(self, min_char_length=2, max_words_length=3, min_keyword_frequency=1,
                  min_words_length_adj=1, max_words_length_adj=1, min_phrase_freq_adj=1):
-        self.__stop_words_path = stop_words_path
-        self.__stop_words_list = self.build_stopwords(stop_words_path)
+        self.__stop_words_list = self.build_stopwords()
         self.__min_char_length = min_char_length
         self.__max_words_length = max_words_length
         self.__min_keyword_frequency = min_keyword_frequency
@@ -72,13 +70,13 @@ class Rake():
         self.__max_words_length_adj = max_words_length_adj
         self.__min_phrase_freq_adj = min_phrase_freq_adj
 
-    def build_stopwords(self, path):
+    def build_stopwords(self):
         # add nltk stopwords
         stopwords_lists = stopwords.words('english')
 
         # add more stopwords from the salton paper
         src_file = "stopwords.txt"
-        file_path = path_reader(src_file, path)
+        file_path = path_reader(src_file)
         with open(file_path, "r") as file:
             for line in file:
                 # remove the "\n" from end of the words
@@ -392,8 +390,7 @@ if __name__ == '__main__':
 
     all_documents = [document_0, document_1, document_2, document_3, document_4, document_5, document_6, document_7, document_8, document_9]
 
-    path = os.getcwd()
-    rake = Rake(path)
+    rake = Rake()
 
     # candidate_keywords = rake.compute_keywords(text)
     # pprint(candidate_keywords)
@@ -417,7 +414,7 @@ if __name__ == '__main__':
             wordDict[keywords] = score
         result[id].append(wordDict)
 
-#    pprint(result)
+    # pprint(result)
 
     docs_comparision = []
     for docs_id1, docs_score1 in result.items():

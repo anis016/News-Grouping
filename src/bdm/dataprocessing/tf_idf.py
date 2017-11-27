@@ -25,11 +25,10 @@ def path_step_back(path):
     else:
         return "Path Error!"
 
-def path_reader(src_file, path):
+def path_reader(src_file):
 
-    str_path = str(path).split("/")
-    if str_path[len(str_path)-1] != 'bdm':
-        path = path_step_back(path)
+    dirname, filename = os.path.split(os.path.abspath(__file__))
+    path = path_step_back(dirname)
 
     file_path  = os.path.join(path + '/data/', src_file)
     if os.path.exists(file_path):
@@ -62,16 +61,16 @@ def get_wordnet_pos(treebank_tag):
 
 class TFIDF():
 
-    def __init__(self, path):
-        self.build_stopwords(path)
+    def __init__(self):
+        self.build_stopwords()
 
-    def build_stopwords(self, path):
+    def build_stopwords(self):
         # add nltk stopwords
         stopwords_lists = stopwords.words('english')
 
         # add more stopwords from the salton paper
         src_file = "stopwords.txt"
-        file_path = path_reader(src_file, path)
+        file_path = path_reader(src_file)
         with open(file_path, "r") as file:
             for line in file:
                 # remove the "\n" from end of the words
@@ -173,15 +172,15 @@ class TFIDF():
 
         # idf holds the set of the all the terms in the documents
         idf = self.inverse_document_frequencies(tokenized_documents)
-        tfidf_documents = []
-        for document in tokenized_documents:
-            doc_tfidf = []
+        tfidf_documents = collections.defaultdict(list)
+        for id, document in enumerate(tokenized_documents):
+            dict_tfidf = {}
             # go through each of the terms in the idf and calculate the tf*idf value
             for term in idf.keys():
                 tf = self.logarithmic_scaled_frequency(term, document)
-                doc_tfidf.append(tf * idf[term])
-
-            tfidf_documents.append(doc_tfidf)
+                tfidf = tf * idf[term]
+                dict_tfidf[term] = tfidf
+            tfidf_documents[id].append(dict_tfidf)
         return tfidf_documents
 
     def compute_keywords(self, all_docs):
@@ -250,23 +249,26 @@ if __name__ == '__main__':
     document_8 = "China has a strong economy that is growing at a rapid pace. However politically it differs greatly from the US Economy."
     document_9 = "Vladimir Putin is working hard to fix the economy in Russia as the Ruble has tumbled."
 
-    all_documents = [document_0, document_1, document_2, document_3, document_4, document_5, document_6]
+    all_documents = [document_0, document_1, document_2, document_3, document_4, document_5, document_6, document_7, document_8, document_9]
 
-    path = os.getcwd()
-    tfidf = TFIDF(path)
+
+    tfidf = TFIDF()
     result = tfidf.compute_keywords(all_documents)
     # pprint(result)
 
     docs_comparision = []
-    for docs_id1 in range(0, len(result)):
-        docs_score1 = result[docs_id1]
-        for docs_id2 in range(docs_id1 + 1, len(result)):
-            docs_score2 = result[docs_id2]
+    for docs_id1, docs_score1 in result.items():
+        for docs_id2, docs_score2 in result.items():
+            if docs_id1 == docs_id2:
+                continue
 
-            similarity_score = cosine_similarity(docs_score1, docs_score2)
+            docs_score1_value = list(docs_score1[0].values())
+            docs_score2_value = list(docs_score2[0].values())
+
+            similarity_score = cosine_similarity(docs_score1_value, docs_score2_value)
 
             if similarity_score > 0.1:
                 transitive_closure(docs_id1, docs_id2)
                 docs_comparision.append((docs_id1, docs_id2))
     pprint(groups)
-    pprint(docs_comparision)
+    print(docs_comparision)

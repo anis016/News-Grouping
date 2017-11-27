@@ -7,10 +7,10 @@ import time
 
 import common.utils as utils
 import common.constants as CONSTANTS
+import os
 
 from mongo.MongoDB import MongoDB
 from dataprocessing.scraper import ArticleScrape
-from dataprocessing.extract_keyword import online_processing_rake
 
 from pymongo import CursorType
 
@@ -86,7 +86,7 @@ def exporting_mongo(document, mongoOb, cnt):
 
             result = mongoOb.insert(CONSTANTS.COLLECTION_SUBSETNEWS, document_json)
             print("Inserted for value: " + mongo_id)
-            # return result.inserted_id
+            return result.inserted_id
 
     except Exception as err:
         exception_print = "Mongo ID: {} ".format(mongo_id)
@@ -101,30 +101,59 @@ def exporting_mongo(document, mongoOb, cnt):
 # mongo_listener will always listen to the collection and if any data shows up
 # it will send the document to process
 def mongo_listener(collection, mongo_object):
-    cursor = collection.find({}, cursor_type=CursorType.TAILABLE_AWAIT)
+    ## Tackle the duplicate entry in mongodb
+    # First read the content of the file and load the idx_list
+
+    ## Below will throw issue when running from different directory in CMD
+    # file_path = os.path.join(os.getcwd(), 'data/idx_file.txt')
+    # workaround
+    dirname, filename = os.path.split(os.path.abspath(__file__))
+    # print("dirname: {0}, filename: {1}".format(dirname, filename))
+    file_path = os.path.join(dirname, 'data/idx_file.txt')
+
+    if os.path.isfile(file_path) is False:
+        idx_file = open(file_path, "w+")  # if file doesn't exist then just create it and then do the write
+    else:
+        idx_file = open(file_path, "r+")
+
+    ## Create a list to check for duplicate entry in mongodb
+    idx_list = [line for line in idx_file]
+
+    if len(idx_list) > 0:
+        idx_list = idx_list[0].split(",")
+        idx_list = idx_list[:len(idx_list) - 1]  # remove the last item which is empty
+
+    cursor = collection.find({}, cursor_type=CursorType.TAILABLE_AWAIT, no_cursor_timeout=True).batch_size(5)
     while True:
         try:
-            doc = cursor.next()
-            document = collection.find_one({'_id': doc['_id']})
-            exporting_mongo(document, mongo_object, 0)
-        except StopIteration:
-            print("end of cursor, waiting for news document")
+            document = cursor.next()
+            # document = collection.find_one({'_id': doc['_id']})
+            if str(document['_id']) not in idx_list:
+                exporting_mongo(document, mongo_object, 0)
+                idx_list.append(str(document['_id']))
+                idx_file.write(str(document['_id'])+ ",")
+            else:
+                print(str(document['_id']) + " already processed!")
+        except StopIteration as se:
+            print("end of cursor, waiting for news document ")
             time.sleep(1)
         except Exception as e:
+            cursor.close()
+            idx_file.close()
             print("Another exception: " + e)
 
 
 def main():
     mongoOb = MongoDB()
     db = mongoOb.initialzie()
-    collection = db["samplenews"] # get the collection for hearing
+    collection = db["samplenews"] # testing
     # collection = db["newsCollection"]
 
     # One time processing
     # Create a new collection of newsCollection to where data needs to be put
     collection_flag = mongoOb.check_collection_exists(CONSTANTS.COLLECTION_SUBSETNEWS)
     if collection_flag is False:
-        mongoOb.create_collection(CONSTANTS.COLLECTION_SUBSETNEWS)
+        mongoOb.create_collection(CONSTANTS.COLLECTION_SUBSETNEWS, "_id")
         print("Created new Collection: " + CONSTANTS.COLLECTION_SUBSETNEWS)
 
     # always listen to the collection for data
