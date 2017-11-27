@@ -146,8 +146,8 @@ def mongo_listener(collection, mongo_object):
 def main():
     mongoOb = MongoDB()
     db = mongoOb.initialzie()
-    collection = db["samplenews"] # testing
-    # collection = db["newsCollection"]
+    # collection = db["samplenews"] # testing
+    collection = db["newsCollection"]
 
     # One time processing
     # Create a new collection of newsCollection to where data needs to be put
