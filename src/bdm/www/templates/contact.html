@@ -14,9 +14,6 @@
     <!-- Bootstrap core CSS -->
     <link href='{% static "bootstrap.min.css" %}' rel="stylesheet">
 
-    <!-- Datatable CSS -->
-    <link href='{% static "jquery.dataTables.min.css" %}' rel="stylesheet">
-
     <!-- Custom styles for this template -->
     <link href='{% static "starter-template.css" %}' rel="stylesheet">
 
@@ -59,28 +56,9 @@
 
     <div class="container">
       <div class="starter-template">
-        <h1>Business Data Matching</h1>
-        <p class="lead">Following are the list of news from News Collection. Please click any news to see details and find similar news.</p>
+        <h1>Contact us</h1>
+        <p class="lead">Text for contact us.</p>
       </div>
-      
-      <table id="myTable" class="table table-striped" data-page-length='25'>
-          <thead>
-            <tr>
-              <th style="text-align:center;">ID</th>
-              <th style="text-align:center;">Title</th>
-              <th style="text-align:center;">Published</th>
-            </tr>
-          </thead>
-          <tbody>
-          {% for n in News %}
-              <tr>
-                  <td style="text-align:center;">{{ n.id }}</td>
-                  <td style="text-align:center;">{{ n.cleaned_title }}</td>
-                  <td style="text-align:center;">{{ n.publish_date }}</td>
-              </tr>
-          {% endfor %}
-          </tbody>
-      </table>
     </div><!-- /.container -->
 
 
@@ -88,15 +66,6 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script type="text/javascript" src='{% static "jquery.min.js" %}'></script>
-    <script type="text/javascript" src='{% static "jquery.dataTables.min.js" %}'></script>
     <script type="text/javascript" src='{% static "bootstrap.min.js" %}'></script>
-	<script>
-    $(document).ready(function(){
-		$('#myTable').dataTable( {
-    		"lengthMenu": [[100, 500, 1000, 5000, -1], [100, 500, 1000, 5000, "All"]]
-		});
-    });
-    </script>
-    
   </body>
 </html>
