@@ -1,0 +1,17 @@
+{
+    "_comment": "Business Data matching configurations file, Collection name should match with mongo Collection name",
+    "bdm": [
+        {
+            "listener_collections": "samplenews",
+            "processing_collections": "samplenewsCollection",
+            "matching_collections": [
+                {
+                    "stockCollection": "stockCollection"
+                }
+            ],
+            "similarity_measure": "cosine_similarity",
+            "similarity_threshold": "0.8",
+            "keyword_algorithm": "tf-idf"
+        }
+    ]
+}

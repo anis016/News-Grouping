@@ -1,5 +1,8 @@
 import datetime
+import json
 import socket
+
+import os
 from dateutil.parser import parse
 import re
 import datefinder
@@ -138,6 +141,34 @@ def is_connected():
     except OSError:
         pass
     return False
+
+def path_step_back(path):
+    path = str(path).split("/")
+    path = '/'.join(path[:len(path)-1])
+    if os.path.exists(path):
+        return path
+    else:
+        return "Path Error!"
+
+def load_configurations(config_file_name, app_name='bdm'):
+    payload = {}
+
+    dirname, filename = os.path.split(os.path.abspath(__file__))
+    # print("dirname: {0}, filename: {1}".format(dirname, filename))
+    path = path_step_back(dirname)
+    file_path = os.path.join(path+'/', config_file_name)
+
+    if os.path.exists(file_path):
+        with open(file_path, "r") as file:
+            make_json = ''.join(line for line in file if not line.startswith("#"))
+            json_text = json.loads(make_json)
+
+        payload = json_text.get(app_name)[0]
+    else:
+        raise IOError("File not found. Check Path!")
+
+    return payload
+
 
 if __name__ == '__main__':
     # print(date_finder(CONSTANTS.data_set4))

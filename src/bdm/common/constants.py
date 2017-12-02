@@ -1,10 +1,23 @@
 DATABASE_NAME = "businessData"
 MONGO_URI = "mongodb://localhost:27017/"
-COLLECTION_NEWS = "newsCollection"
-COLLECTION_SUBSETNEWS = "newsSubsetCollection"
-COLLECTION_STOCK = "stockCollection"
-COLLECTION_TEST  = "testCollection"
-COLLECTION_SUBSETTEST = "testSubsetCollection"
+
+# trick to resolve import issue:
+# use sys.path to see till what path python sees, then use the path after that.
+# import sys
+# print("Project Path:: " + str(sys.path))
+
+######################################################
+# load the configurations
+import common.utils as utils
+payload = utils.load_configurations(config_file_name='bdm_configurations.json')
+
+COLLECTION_LISTENER  = payload["listener_collections"]
+COLLECTION_PROCESSING= payload["processing_collections"]
+COLLECTION_STOCK     = payload["matching_collections"][0].get("stockCollection")
+SIMILARITY_ALGORITHM = payload["keyword_algorithm"]
+SIMILARITY_MEASURES  = payload["similarity_measure"]
+SIMILARITY_THRESHOLD = payload["similarity_threshold"]
+######################################################
 
 ## Test Datasets
 data_set1 = '''
