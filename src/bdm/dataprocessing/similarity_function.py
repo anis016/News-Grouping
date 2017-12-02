@@ -50,86 +50,88 @@ class DisjointSet(object):
                 self.leader[a] = self.leader[b] = a
                 self.group[a] = set([a, b])
 
-######
-document_0 = "China has a strong economy that is growing at a rapid pace. However politically it differs greatly from the US Economy."
-document_8 = "China has a strong economy that is growing at a rapid pace. However politically it differs greatly from the US Economy."
-######
+if __name__ == '__main__':
 
-######
-document_1 = "At last, China seems serious about confronting an endemic problem: domestic violence and corruption."
-######
+    ######
+    document_0 = "China has a strong economy that is growing at a rapid pace. However politically it differs greatly from the US Economy."
+    document_8 = "China has a strong economy that is growing at a rapid pace. However politically it differs greatly from the US Economy."
+    ######
 
-######
-document_2 = "Japan's prime minister, Shinzo Abe, is working towards healing the economic turmoil in his own country for his view on the future of his people."
-document_4 = "What's the future of Abenomics? We asked Shinzo Abe for his views"
-document_7 = "Japan's prime minister, Shinzo Abe, is working towards healing the economic turmoil in his own country for his view on the future of his people."
-#####
+    ######
+    document_1 = "At last, China seems serious about confronting an endemic problem: domestic violence and corruption."
+    ######
 
-#####
-document_5 = "Obama has eased sanctions on Cuba while accelerating those against the Russian Economy, even as the Ruble's value falls almost daily."
-#
-document_3 = "Vladimir Putin is working hard to fix the economy in Russia as the Ruble has tumbled."
-document_6 = "Vladimir Putin is riding a horse while hunting deer. Vladimir Putin always seems so serious about things - even riding horses. Is he crazy?"
-document_9 = "Vladimir Putin is working hard to fix the economy in Russia as the Ruble has tumbled."
-#####
+    ######
+    document_2 = "Japan's prime minister, Shinzo Abe, is working towards healing the economic turmoil in his own country for his view on the future of his people."
+    document_4 = "What's the future of Abenomics? We asked Shinzo Abe for his views"
+    document_7 = "Japan's prime minister, Shinzo Abe, is working towards healing the economic turmoil in his own country for his view on the future of his people."
+    #####
 
-all_documents = [document_0, document_1, document_2, document_3, document_4, document_5, document_6, document_7, document_8, document_9]
+    #####
+    document_5 = "Obama has eased sanctions on Cuba while accelerating those against the Russian Economy, even as the Ruble's value falls almost daily."
+    #
+    document_3 = "Vladimir Putin is working hard to fix the economy in Russia as the Ruble has tumbled."
+    document_6 = "Vladimir Putin is riding a horse while hunting deer. Vladimir Putin always seems so serious about things - even riding horses. Is he crazy?"
+    document_9 = "Vladimir Putin is working hard to fix the economy in Russia as the Ruble has tumbled."
+    #####
 
-###################################################################################################
-rake = Rake()
-keywords_group = collections.defaultdict(list)
-keywords_set = set()
-for id, document in enumerate(all_documents):
-    extract_keywords = rake.compute_keywords(document)
-    keywords_group[id] = [item for item in extract_keywords]
-    for item in extract_keywords:
-        keywords_set.add(item[0])
+    all_documents = [document_0, document_1, document_2, document_3, document_4, document_5, document_6, document_7, document_8, document_9]
 
-# normalize
-result = collections.defaultdict(list)
-for docs in keywords_group.items():
-    wordDict = dict.fromkeys(keywords_set, 0)
-    id, keywords_score = docs
-    for keywords, score in keywords_score:
-        wordDict[keywords] = score
-    result[id].append(wordDict)
+    ###################################################################################################
+    rake = Rake()
+    keywords_group = collections.defaultdict(list)
+    keywords_set = set()
+    for id, document in enumerate(all_documents):
+        extract_keywords = rake.compute_keywords(document)
+        keywords_group[id] = [item for item in extract_keywords]
+        for item in extract_keywords:
+            keywords_set.add(item[0])
 
-# pprint(result)
+    # normalize
+    result = collections.defaultdict(list)
+    for docs in keywords_group.items():
+        wordDict = dict.fromkeys(keywords_set, 0)
+        id, keywords_score = docs
+        for keywords, score in keywords_score:
+            wordDict[keywords] = score
+        result[id].append(wordDict)
 
-dsRake = DisjointSet()
-for docs_id1, docs_score1 in result.items():
-    for docs_id2, docs_score2 in result.items():
-        if docs_id1 == docs_id2:
-            continue
-        docs_score1_value = list(docs_score1[0].values())
-        docs_score2_value = list(docs_score2[0].values())
+    # pprint(result)
 
-        similarity_score = cosine_similarity(docs_score1_value, docs_score2_value)
+    dsRake = DisjointSet()
+    for docs_id1, docs_score1 in result.items():
+        for docs_id2, docs_score2 in result.items():
+            if docs_id1 == docs_id2:
+                continue
+            docs_score1_value = list(docs_score1[0].values())
+            docs_score2_value = list(docs_score2[0].values())
 
-        if similarity_score > 0.1:
-            dsRake.add(docs_id1, docs_id2)
+            similarity_score = cosine_similarity(docs_score1_value, docs_score2_value)
 
-print("Using RAKE model")
-print(dsRake.group)
-###################################################################################################
+            if similarity_score > 0.1:
+                dsRake.add(docs_id1, docs_id2)
 
-tfidf = TFIDF()
-result = tfidf.compute_keywords(all_documents)
-# pprint(result)
+    print("Using RAKE model")
+    print(dsRake.group)
+    ###################################################################################################
 
-dsTFIDF = DisjointSet()
-for docs_id1, docs_score1 in result.items():
-    for docs_id2, docs_score2 in result.items():
-        if docs_id1 == docs_id2:
-            continue
-        docs_score1_value = list(docs_score1[0].values())
-        docs_score2_value = list(docs_score2[0].values())
+    tfidf = TFIDF()
+    result = tfidf.compute_keywords(all_documents)
+    # pprint(result)
 
-        similarity_score = cosine_similarity(docs_score1_value, docs_score2_value)
+    dsTFIDF = DisjointSet()
+    for docs_id1, docs_score1 in result.items():
+        for docs_id2, docs_score2 in result.items():
+            if docs_id1 == docs_id2:
+                continue
+            docs_score1_value = list(docs_score1[0].values())
+            docs_score2_value = list(docs_score2[0].values())
 
-        if similarity_score > 0.1:
-            dsTFIDF.add(docs_id1, docs_id2)
+            similarity_score = cosine_similarity(docs_score1_value, docs_score2_value)
 
-print("Using VSM model")
-print(dsTFIDF.group)
-###################################################################################################
+            if similarity_score > 0.1:
+                dsTFIDF.add(docs_id1, docs_id2)
+
+    print("Using VSM model")
+    print(dsTFIDF.group)
+    ###################################################################################################
