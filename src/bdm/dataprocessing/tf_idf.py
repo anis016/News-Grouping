@@ -14,7 +14,7 @@ from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.stem.snowball import PorterStemmer
 
-from similarity_function import cosine_similarity
+# from similarity_function import cosine_similarity
 
 
 def path_step_back(path):
@@ -254,21 +254,18 @@ if __name__ == '__main__':
 
     tfidf = TFIDF()
     result = tfidf.compute_keywords(all_documents)
-    # pprint(result)
+    pprint(result)
 
-    docs_comparision = []
-    for docs_id1, docs_score1 in result.items():
-        for docs_id2, docs_score2 in result.items():
-            if docs_id1 == docs_id2:
-                continue
-
-            docs_score1_value = list(docs_score1[0].values())
-            docs_score2_value = list(docs_score2[0].values())
-
-            similarity_score = cosine_similarity(docs_score1_value, docs_score2_value)
-
-            if similarity_score > 0.1:
-                transitive_closure(docs_id1, docs_id2)
-                docs_comparision.append((docs_id1, docs_id2))
-    pprint(groups)
-    print(docs_comparision)
+    # for docs_id1, docs_score1 in result.items():
+    #     for docs_id2, docs_score2 in result.items():
+    #         if docs_id1 == docs_id2:
+    #             continue
+    #
+    #         docs_score1_value = list(docs_score1[0].values())
+    #         docs_score2_value = list(docs_score2[0].values())
+    #
+    #         similarity_score = cosine_similarity(docs_score1_value, docs_score2_value)
+    #
+    #         if similarity_score > 0.1:
+    #             transitive_closure(docs_id1, docs_id2)
+    # pprint(groups)

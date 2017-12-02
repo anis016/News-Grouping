@@ -14,7 +14,7 @@ from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.stem.snowball import PorterStemmer
 
-from similarity_function import cosine_similarity
+# from similarity_function import cosine_similarity
 
 def path_step_back(path):
     path = str(path).split("/")
@@ -391,43 +391,39 @@ if __name__ == '__main__':
     all_documents = [document_0, document_1, document_2, document_3, document_4, document_5, document_6, document_7, document_8, document_9]
 
     rake = Rake()
+    candidate_keywords = rake.compute_keywords(text)
+    pprint(candidate_keywords)
 
-    # candidate_keywords = rake.compute_keywords(text)
-    # pprint(candidate_keywords)
+    # keywords_group = collections.defaultdict(list)
+    # keywords_set = set()
+    # for id, document in enumerate(all_documents):
+    #     extract_keywords = rake.compute_keywords(document)
+    #     keywords_group[id] = [item for item in extract_keywords]
+    #     for item in extract_keywords:
+    #         keywords_set.add(item[0])
 
-    keywords_group = collections.defaultdict(list)
-    keywords_set = set()
-    for id, document in enumerate(all_documents):
-        extract_keywords = rake.compute_keywords(document)
-        keywords_group[id] = [item for item in extract_keywords]
-        for item in extract_keywords:
-            keywords_set.add(item[0])
+    # pprint(keywords_set) # extracted all keyword sets
+    # pprint(keywords_group) # extracted keyword for each group
 
-#    pprint(keywords_set) # extracted all keyword sets
-#    pprint(keywords_group) # extracted keyword for each group
-
-    result = collections.defaultdict(list)
-    for docs in keywords_group.items():
-        wordDict = dict.fromkeys(keywords_set, 0)
-        id, keywords_score = docs
-        for keywords, score in keywords_score:
-            wordDict[keywords] = score
-        result[id].append(wordDict)
+    # result = collections.defaultdict(list)
+    # for docs in keywords_group.items():
+    #     wordDict = dict.fromkeys(keywords_set, 0)
+    #     id, keywords_score = docs
+    #     for keywords, score in keywords_score:
+    #         wordDict[keywords] = score
+    #     result[id].append(wordDict)
 
     # pprint(result)
 
-    docs_comparision = []
-    for docs_id1, docs_score1 in result.items():
-        for docs_id2, docs_score2 in result.items():
-            if docs_id1 == docs_id2:
-                continue
-            docs_score1_value = list(docs_score1[0].values())
-            docs_score2_value = list(docs_score2[0].values())
-
-            similarity_score = cosine_similarity(docs_score1_value, docs_score2_value)
-
-            if similarity_score > 0.1:
-                transitive_closure(docs_id1, docs_id2)
-                docs_comparision.append((docs_id1, docs_id2))
-    pprint(groups)
-    pprint(docs_comparision)
+    # for docs_id1, docs_score1 in result.items():
+    #     for docs_id2, docs_score2 in result.items():
+    #         if docs_id1 == docs_id2:
+    #             continue
+    #         docs_score1_value = list(docs_score1[0].values())
+    #         docs_score2_value = list(docs_score2[0].values())
+    #
+    #         similarity_score = cosine_similarity(docs_score1_value, docs_score2_value)
+    #
+    #         if similarity_score > 0.1:
+    #             transitive_closure(docs_id1, docs_id2)
+    # pprint(groups)

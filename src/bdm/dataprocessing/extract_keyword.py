@@ -4,7 +4,7 @@ from bson import ObjectId
 from common.utils import get_mongo_value
 from mongo.MongoDB import MongoDB
 
-from dataprocessing.rake import Rake
+from rake import Rake
 
 
 def online_processing_rake(document_id, mongo_object):
