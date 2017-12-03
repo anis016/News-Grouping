@@ -12,7 +12,7 @@ import common.utils as utils
 payload = utils.load_configurations(config_file_name='bdm_configurations.json')
 
 COLLECTION_LISTENER  = payload["listener_collections"]
-COLLECTION_PROCESSING= payload["processing_collections"]
+COLLECTION_PROCESSED = payload["processed_collections"]
 COLLECTION_STOCK     = payload["matching_collections"][0].get("stockCollection")
 SIMILARITY_ALGORITHM = payload["keyword_algorithm"]
 SIMILARITY_MEASURES  = payload["similarity_measure"]

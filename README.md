@@ -8,6 +8,10 @@ Research and implement state of the art Data Matching techniques for business re
 3. Django - 1.11
 4. D3.JS
 
+### Running the program
+1. Start the program `mongo_export.py` to run the data crawling and cleaning process.
+2. Change the `bdm_configurations.json` file for changing the configurations.
+
 ### Python Librarires
 
 ### References

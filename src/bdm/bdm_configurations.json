@@ -3,7 +3,7 @@
     "bdm": [
         {
             "listener_collections": "samplenews",
-            "processing_collections": "samplenewsCollection",
+            "processed_collections": "samplenewsCollection",
             "matching_collections": [
                 {
                     "stockCollection": "stockCollection"
