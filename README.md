@@ -9,8 +9,8 @@ Research and implement state of the art Data Matching techniques for business re
 4. D3.JS
 
 ### Running the program
-1. Start the program `mongo_export.py` to run the data crawling and cleaning process.
-2. Change the `bdm_configurations.json` file for changing the configurations.
+1. **`bdm_configurations.json`** file handles the configuration of the program.
+2. **`mongo_export.py`** is the mongo listener that crawls the data crawls the data, cleans it and store into new collection set as per `bdm_configurations.json` file.
 
 ### Python Librarires
 
