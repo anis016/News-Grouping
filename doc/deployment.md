@@ -146,3 +146,9 @@ $ virtualenv bdm_venv
 ```
 $ pip install django
 ```
+
+*Edited .bashrc file and added PYTHONPATH so to access module outside Django root directory.
+
+```
+export PYTHONPATH='/home/student/businessDataMatching/src/bdm'
+```
