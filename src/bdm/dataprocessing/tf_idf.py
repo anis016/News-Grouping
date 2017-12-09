@@ -164,78 +164,31 @@ class TFIDF():
 
     def tfidf(self, documents):
         # break each document into list of tokenized document
-        tokenized_documents = []
-        for document in documents:
+        tokenized_documents = collections.defaultdict(list)
+        tokenized_documents_list = []
+        for key, document_list in documents.items():
+            document = document_list[0]
             sentence_list = self.split_sentence(document)
             tokenize_sentence = self.tokenize_document(sentence_list, self.stopwords_pattern)
-            tokenized_documents.append(tokenize_sentence)
+            tokenized_documents[key].append(tokenize_sentence)
+            tokenized_documents_list.append(tokenize_sentence)
 
         # idf holds the set of the all the terms in the documents
-        idf = self.inverse_document_frequencies(tokenized_documents)
+        idf = self.inverse_document_frequencies(tokenized_documents_list)
         tfidf_documents = collections.defaultdict(list)
-        for id, document in enumerate(tokenized_documents):
+        for key, document in tokenized_documents.items():
             dict_tfidf = {}
             # go through each of the terms in the idf and calculate the tf*idf value
             for term in idf.keys():
-                tf = self.logarithmic_scaled_frequency(term, document)
+                tf = self.logarithmic_scaled_frequency(term, document[0])
                 tfidf = tf * idf[term]
                 dict_tfidf[term] = tfidf
-            tfidf_documents[id].append(dict_tfidf)
+            tfidf_documents[key].append(dict_tfidf)
         return tfidf_documents
 
     def compute_keywords(self, all_docs):
         tfidf = self.tfidf(all_docs)
         return tfidf
-
-def flip(flag):
-    if flag is True:
-        return False
-    else:
-        return True
-
-groups = collections.defaultdict(set)
-group_value = 0
-
-def transitive_closure(v1, v2):
-    global group_value
-
-    if len(groups) == 0:
-        key = "group" + str(group_value)
-        groups[key].add(v1)
-        groups[key].add(v2)
-        group_value += 1
-    else:
-        flagv1 = False
-        flagv2 = False
-        which_group = ""
-        for key, value in groups.items():
-            if v1 in value and v2 in value:
-                which_group = key
-                flagv2 = False
-                flagv1 = False
-                break
-            elif v1 not in value and v2 in value:
-                which_group = key
-                flagv1 = True
-                flagv2 = False
-                break
-            elif v1 in value and v2 not in value:
-                which_group = key
-                flagv1 = False
-                flagv2 = True
-                break
-            elif v1 not in value and v2 not in value:
-                flagv1 = True
-                flagv2 = True
-
-        if flagv1 == True and flagv2 == True:
-            key = "group" + str(group_value)
-            groups[key].add(v1)
-            groups[key].add(v2)
-            group_value += 1
-        else:
-            groups[which_group].add(v1)
-            groups[which_group].add(v2)
 
 if __name__ == '__main__':
     document_0 = "China has a strong economy that is growing at a rapid pace. However politically it differs greatly from the US Economy."
@@ -251,9 +204,15 @@ if __name__ == '__main__':
 
     all_documents = [document_0, document_1, document_2, document_3, document_4, document_5, document_6, document_7, document_8, document_9]
 
+    dict_documents = collections.defaultdict(list)
+    cnt = 0
+    for document in all_documents:
+        key = "doc" + str(cnt)
+        dict_documents[key].append(document)
+        cnt += 1
 
     tfidf = TFIDF()
-    result = tfidf.compute_keywords(all_documents)
+    result = tfidf.compute_keywords(dict_documents)
     pprint(result)
 
     # for docs_id1, docs_score1 in result.items():

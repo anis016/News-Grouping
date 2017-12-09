@@ -11,6 +11,7 @@ MONGO_URI = "mongodb://localhost:27017/"
 import common.utils as utils
 payload = utils.load_configurations(config_file_name='bdm_configurations.json')
 
+BATCH_SIZE           = payload["batch_size"]
 COLLECTION_LISTENER  = payload["listener_collections"]
 COLLECTION_PROCESSED = payload["processed_collections"]
 COLLECTION_STOCK     = payload["matching_collections"][0].get("stockCollection")

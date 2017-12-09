@@ -3,15 +3,16 @@
     "bdm": [
         {
             "listener_collections": "samplenews",
-            "processed_collections": "samplenewsCollection",
+            "processed_collections": "samplenewsSubsetCollection",
             "matching_collections": [
                 {
                     "stockCollection": "stockCollection"
                 }
             ],
             "similarity_measure": "cosine_similarity",
-            "similarity_threshold": "0.8",
-            "keyword_algorithm": "tf-idf"
+            "similarity_threshold": 0.8,
+            "keyword_algorithm": "tf-idf",
+            "batch_size": 1000
         }
     ]
 }
