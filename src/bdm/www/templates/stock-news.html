@@ -14,6 +14,8 @@
 
     <!-- Bootstrap core CSS -->
     <link href='{% static "bootstrap.min.css" %}' rel="stylesheet">
+	
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
 
     <!-- Custom styles for this template -->
     <link href='{% static "bdm.css" %}' rel="stylesheet">
@@ -33,11 +35,10 @@
     <![endif]-->
     <script type="text/javascript" src='{% static "jquery.min.js" %}'></script>
     <script type="text/javascript" src='{% static "bootstrap.min.js" %}'></script>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script>
-      var newsstats = {{ news_stats }}
-    </script>
-    <script type="text/javascript" src='{% static "bdm.newschart.js" %}'></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+    <script type="text/javascript" src='{% static "bdm.datepicker.js" %}'></script> 
+    <script src="https://code.highcharts.com/highcharts.js"></script>    
+    <script type="text/javascript" src='{% static "bdm.stockchart.js" %}'></script>
   </head>
 
   <body>
@@ -53,25 +54,34 @@
           </button>
           <a class="navbar-brand" href="/bdm">Business Data Matching</a>
         </div>
-        <!--<div class="collapse navbar-collapse">
+        <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/bdm">Home</a></li>
-            <li><a href="/bdm/about">About</a></li>
-            <li><a href="/bdm/contact">Contact</a></li>
+            <li><a href="/bdm">Home</a></li>
+            <li class="active"><a href="/bdm/stock-news">Stock News</a></li>
           </ul>
-        </div>--><!--/.nav-collapse -->
+        </div>
       </div>
     </div>
 
     <div class="container">
-      <div class="starter-template">
+      <div class="starter-template" >
           <div class="row">
             <div class="col-xs-6 col-lg-4">
-              		<h3>{{ cleaned_title }}</h3>
-                    <p><a href="{{ url }}" target="_blank">{{ url }}</a></p>
+                <form action="bdm/stock-news/">
+                <div class="form-group">
+                  <label for="stocknews">Ticker:</label>
+                  <input type="text" class="form-control" id="stocknews" placeholder="Enter Ticker" name="stocknews">
+                </div>
+                <div class="form-group">
+                  <label for="date">Date:</label>
+                  <input class="form-control" id="date" name="date" placeholder="MM/DD/YYY" type="text"/>
+                </div>
+                <button type="search" class="btn btn-default">Search</button>
+              </form>
+
             </div>
             <div class="col-xs-12 col-sm-6 col-lg-8">
-            	<div id="chart" style="width:100%; height:400px;"></div>
+            	<div id="stockchart" style="width:100%; height:400px;"></div>
             </div>
           </div>
         {% if similarDocs %}

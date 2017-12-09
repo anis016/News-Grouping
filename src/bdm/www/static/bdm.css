@@ -1,3 +1,15 @@
+body {
+  padding-top: 50px;
+}
+
+.starter-template {
+  padding: 40px 15px 10px;
+}
+
+.text-alignment {
+  text-align: center;	
+}
+
 /* Center the loader */
 #loader {
   position: absolute;
@@ -48,3 +60,18 @@
 #myTable{
   display:none;
 }
+
+.center {
+    margin: 0 auto;
+    width: 50%;
+    padding-bottom: 10px;
+}
+
+.pager .previous>button {
+	float:left;	
+}
+
+.pager .next>button {
+	float:right;
+}
+
