@@ -2,10 +2,12 @@ import collections
 import math
 from pprint import pprint
 
-from rake import Rake
-from tf_idf import TFIDF
 
 # https://en.wikipedia.org/wiki/Jaccard_index
+from dataprocessing.rake import Rake
+from dataprocessing.tf_idf import TFIDF
+
+
 def jaccard_similarity(A, B):
     intersection = set(A).intersection(set(B))
     union        = set(A).union(set(B))
@@ -74,16 +76,25 @@ if __name__ == '__main__':
     document_6 = "Vladimir Putin is riding a horse while hunting deer. Vladimir Putin always seems so serious about things - even riding horses. Is he crazy?"
     document_9 = "Vladimir Putin is working hard to fix the economy in Russia as the Ruble has tumbled."
     #####
+    all_documents = [document_0, document_1, document_2, document_3, document_4, document_5, document_6, document_7,
+                     document_8, document_9]
 
-    all_documents = [document_0, document_1, document_2, document_3, document_4, document_5, document_6, document_7, document_8, document_9]
+
+    dict_documents = collections.defaultdict(list)
+    cnt = 0
+    for document in all_documents:
+        key = "doc" + str(cnt)
+        dict_documents[key].append(document)
+        cnt += 1
 
     ###################################################################################################
     rake = Rake()
     keywords_group = collections.defaultdict(list)
     keywords_set = set()
-    for id, document in enumerate(all_documents):
+    for key, document_list in dict_documents.items():
+        document = document_list[0]
         extract_keywords = rake.compute_keywords(document)
-        keywords_group[id] = [item for item in extract_keywords]
+        keywords_group[key] = [item for item in extract_keywords]
         for item in extract_keywords:
             keywords_set.add(item[0])
 
@@ -116,7 +127,7 @@ if __name__ == '__main__':
     ###################################################################################################
 
     tfidf = TFIDF()
-    result = tfidf.compute_keywords(all_documents)
+    result = tfidf.compute_keywords(dict_documents)
     # pprint(result)
 
     dsTFIDF = DisjointSet()

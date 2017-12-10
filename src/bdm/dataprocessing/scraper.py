@@ -1,19 +1,13 @@
 from curses.ascii import isalnum
-
-import common.utils as UTILS
-import common.constants as CONSTANTS
-import common.errors as ERRORS
-
 from bs4 import BeautifulSoup
-
 import newspaper
-
 import sys
 import unicodedata
 import re
 
-from common.utils import is_date_timestamp
-from common.utils import is_connected
+from common.utils import is_connected, is_date_timestamp
+import common.utils as UTILS
+import common.constants as CONSTANTS
 
 class ArticleScrape:
 
@@ -207,6 +201,7 @@ class ArticleScrape:
 if __name__ == "__main__":
     news = ArticleScrape()
 
-    for src in CONSTANTS.news_source:
-        json = news.extract_text(src)
-        print(json.get("title"), "\n", json.get("publish_date"))
+    for src in CONSTANTS.COLLECTION_PROCESSED:
+        json = news.extract_text(src, "none")
+        print(json)
+        # print(json.get("title"), "\n", json.get("publish_date"))

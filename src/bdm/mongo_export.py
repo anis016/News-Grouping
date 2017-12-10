@@ -72,7 +72,7 @@ def exporting_mongo(document, mongoOb, cnt):
                 "source": mongo_source,
                 "country": mongo_country,
                 "timestamp": mongo_timestamp,
-                "connected": mongo_connected,
+                "connected": [mongo_connected],
                 "scraped_title": json_title,
                 "publish_date": str(json_publish_date),  # pymongo date issue occurs, make it string
                 "meta_keywords": json_meta_keywords,

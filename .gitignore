@@ -79,3 +79,5 @@ bdm_venv
 /src/resources/businessData/
 /src/bdm/data/idx_file.txt
 /src/bdm/data/processed_file.txt
+/src/bdm/data/stock_file.txt
+/src/bdm/data/yahoo_ticker_symbols.csv

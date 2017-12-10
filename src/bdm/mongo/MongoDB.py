@@ -35,8 +35,12 @@ class MongoDB:
             return MongoDB.DATABASE[collection].find()
 
     @staticmethod
-    def update(collection, query, data):
-        return MongoDB.DATABASE[collection].update(query, data, upsert=True)
+    def update_one(collection, query, data):
+        return MongoDB.DATABASE[collection].update_one(query, {'$set': data}, upsert=False)
+
+    @staticmethod
+    def update_list(collection, query, data):
+        return MongoDB.DATABASE[collection].update_one(query, { '$addToSet': data}, upsert=False)
 
     @staticmethod
     def delete(collection, query):
