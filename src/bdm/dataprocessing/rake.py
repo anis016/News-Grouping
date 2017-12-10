@@ -17,7 +17,11 @@ from nltk.stem.snowball import PorterStemmer
 # from similarity_function import cosine_similarity
 
 def path_step_back(path):
-    path = str(path).split("/")
+    if os.name == "nt":
+        path = str(path).split("\\")
+    else:
+        path = str(path).split("/")
+
     path = '/'.join(path[:len(path)-1])
     if os.path.exists(path):
         return path

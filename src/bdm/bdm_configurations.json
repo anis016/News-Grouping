@@ -12,7 +12,7 @@
             "similarity_measure": "cosine_similarity",
             "similarity_threshold": 0.2,
             "keyword_algorithm": "tf-idf",
-            "batch_size": 5
+            "batch_size": 15
         }
     ]
 }
