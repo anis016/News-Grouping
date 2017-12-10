@@ -7,6 +7,9 @@ import common.constants as CONSTANTS
 from bson import ObjectId
 from common.utils import get_mongo_value
 from pprint import pprint
+from dateutil.relativedelta import relativedelta
+from datetime import datetime, timezone
+import time
 import math
 
 def index(request):
@@ -29,9 +32,26 @@ def index(request):
 def stock(request):
     mongoOb = MongoDB()
     mongoOb.initialzie()
-    news = mongoOb.find("samplenewsSubsetCollection")
-    if(news.count() != 0):
-        return render(request, "stock-news.html", {'similarDocs': news})
+    if request.method == 'POST' and request.POST.get('ticker', '') != ""  and request.POST.get('startDate', '') != "" and request.POST.get('endDate', '') != "":
+        ticker = request.POST.get('ticker', '').strip()
+        startDate = request.POST.get('startDate', '').strip()
+        endDate = request.POST.get('endDate', '').strip()
+
+        stocks = mongoOb.find("stockCollection", {"$and": [{"Ticker":ticker}, {"Date": {"$gte": startDate, "$lte": endDate}}]})
+
+        stockCloseVal = []
+        stockDateVal = []
+        for s in stocks:
+            stockDateVal.append(time.mktime(datetime.strptime(s.get('Date'), "%Y-%m-%d").timetuple()))
+            stockCloseVal.append(float (s.get('Adj_Close')))
+
+        stockDate = ','.join(map(str, stockDateVal))
+        stockClose = ','.join(map(str, stockCloseVal))
+
+        if(stocks.count() != 0):
+            return render(request, "stock-news.html", {'stockDateVal': stockDate, 'stockCloseVal': stockClose, 'ticker': ticker, 'startDate': startDate, 'endDate': endDate,'stockChart': True})
+        else:
+            return render(request, "stock-news.html", {})
     else:
         return render(request, "stock-news.html", {})
 
@@ -50,10 +70,9 @@ def detail(request):
             documents = []
             for docId in objIds:
                 documents.append(getSimilarNews(docId))
-            #return HttpResponse(documents)
             return render(request, "detail.html", {'cleaned_title': cleaned_title, 'url': url, 'news_stats':3, 'similarDocs': documents})
         else:
-            return render(request, "detail.html", {'cleaned_title': cleaned_title, 'url': url})
+            return render(request, "detail.html", {'cleaned_title': cleaned_title, 'url': url, 'news_stats':3})
 
 def getSimilarNews(docId):
     mongoOb = MongoDB()

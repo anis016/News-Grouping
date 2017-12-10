@@ -33,11 +33,6 @@
     <![endif]-->
     <script type="text/javascript" src='{% static "jquery.min.js" %}'></script>
     <script type="text/javascript" src='{% static "bootstrap.min.js" %}'></script>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script>
-      var newsstats = {{ news_stats }}
-    </script>
-    <script type="text/javascript" src='{% static "bdm.newschart.js" %}'></script>
   </head>
 
   <body>
@@ -94,10 +89,6 @@
                   {% endfor %}
                   </tbody>
                 </table>
-                <ul class="pager">
-    				<li class="previous"><a href="#">Previous</a></li>
-    				<li class="next"><a href="#">Next</a></li>
-  				</ul>
             </div>
           </div>
         {% endif %}
