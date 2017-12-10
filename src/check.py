@@ -1,20 +1,28 @@
-from mongo.MongoDB import MongoDB
+import pymongo
 
-st = "2016-06-22"
+client = pymongo.MongoClient()
+db = client['businessData']
+news_collection = db["samplenewsSubsetCollection"]
 
-# Date.UTC(1970, 9, 21)]
+print("Collection contains %s documents." % db.command("collstats", "samplenewsSubsetCollection")["count"])
 
-import datetime
-import time
+# get first ID
+pageSize = 5
+first_news = news_collection.find_one()
+completed_page_rows=1
+last_id = first_news["_id"]
 
-# timestamp = time.mktime(datetime.datetime.strptime(st, "%Y-%m-%d").timetuple())
-# print(timestamp)
+# get the next page of documents (read-ahead programming style)
+next_results = news_collection.find({"_id":{"$gt":last_id}},{"link":1},no_cursor_timeout=True).limit(pageSize)
 
-mongo_ob = MongoDB()
-db = mongo_ob.initialzie()
-collection = db["samplestock"]
-stock_cursor = collection.find()
+# keep getting pages until there are no more
+while next_results.count()>0:
+  for ii, document in enumerate(next_results):
+    completed_page_rows+=1
+    if completed_page_rows % pageSize == 0:
+      print("%s (id = %s): link %s" % (completed_page_rows,document["_id"],document["link"]))
+    last_id = document["_id"]
 
-for stock in stock_cursor:
-    item = [stock["Date"], float(stock["Adj_Close"])]
-    print(item)
+  next_results = news_collection.find({"_id":{"$gt":last_id}},{"link":1},no_cursor_timeout=True).limit(pageSize)
+
+print("\nDone.\n")

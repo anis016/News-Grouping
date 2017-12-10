@@ -3,10 +3,10 @@
     "bdm": [
         {
             "listener_collections": "samplenews",
-            "processed_collections": "samplenewsSubset",
+            "processed_collections": "samplenewsSubsetCollection",
             "matching_collections": [
                 {
-                    "stockCollection": "samplestock"
+                    "stockCollection": "stockCollection"
                 }
             ],
             "similarity_measure": "cosine_similarity",

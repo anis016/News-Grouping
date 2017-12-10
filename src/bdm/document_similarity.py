@@ -32,73 +32,69 @@ def load_files_and_variables():
 
     return stock_file, stock_list
 
-def add_documents(mongo_object, batch_count):
-    dict_documents = collections.defaultdict(list)
-    current_algorithm = CONSTANTS.SIMILARITY_ALGORITHM
-    try:
-        counter = 0;
-        cursor = mongo_object.find(CONSTANTS.COLLECTION_PROCESSED)
-        for document in cursor:
-            stock_matcher(mongo_object, document)
-
-            object_id = str(document.get("_id")).strip()
-            cleaned_body = document.get("cleaned_body")
-            country = document.get("country")
-
-            keyword_algorithm = utils.get_mongo_value(current_algorithm, document)
-            if keyword_algorithm != current_algorithm:
-                if country == "us":
-                    dict_documents[object_id].append(cleaned_body)
-                    counter += 1
-
-            if counter == batch_count:
-                break
-
-    except Exception as err:
-        print(str(err))
-
-    return dict_documents
-
 def stock_matcher(mongo_object, document):
     stock_file, stock_list = load_files_and_variables()
     if str(document['_id']) not in stock_list:
+
         news_id = str(document["_id"]).strip()
         news_date = document["publish_date"]
         news_meta_keywords = document["meta_keywords"]
         news_description = document["cleaned_body"]
 
-        stock_cursor = mongo_object.find(CONSTANTS.COLLECTION_STOCK)
-        for stock_document in stock_cursor:
-            found = False
-            stock_id = stock_document["_id"]
+        db = mongo_object.initialzie()
+        stock_collection = db[CONSTANTS.COLLECTION_STOCK]
+        stock_cursor = stock_collection.find({"Date": news_date},
+                                 projection={'_id': True, 'newsLinks': True, 'Date': True,
+                                             'description': True},
+                                 no_cursor_timeout=True)
 
-            # check if news_link exists, if not then make it
-            # always does this for 1st time
-            news_links = stock_document.get("newsLinks")
-            if news_links is None:
-                mongo_object.update_one(CONSTANTS.COLLECTION_STOCK, {"_id": stock_id}, {'newsLinks': []})
+        if stock_cursor.count() > 0:
 
-            stock_date = stock_document["Date"]
-            stock_description = stock_document["description"]
-            # first filter with stock_date
-            meta_description_list = []
-            if stock_date == news_date:
-                # then check if the description matches
-                translator = str.maketrans('', '', string.punctuation)
-                stock_description = stock_description.translate(translator)
-                stock_description = stock_description.lower()
+            while True:
+                try:
+                    stock_document = stock_cursor.next()
+                    stock_id = stock_document["_id"]
 
-                meta_description_list.append(any(stock_description in item for item in news_meta_keywords))
-                meta_description_list.append(stock_description in news_description.lower())
+                    # check if news_link exists, if not then make it
+                    # always does this for 1st time
+                    news_links = stock_document.get("newsLinks")
+                    if news_links is None:
+                        mongo_object.update_one(CONSTANTS.COLLECTION_STOCK, {"_id": stock_id}, {'newsLinks': []})
 
-                found = True in meta_description_list
-                if found == True:
-                    mongo_object.update_list(CONSTANTS.COLLECTION_STOCK, {"_id": stock_id}, {'newsLinks': news_id})
-            else:
-                continue
+                    stock_description = stock_document["description"]
+                    # first filter with stock_date
+                    meta_description_list = []
+                    # then check if the description matches
+                    translator = str.maketrans('', '', string.punctuation)
+                    stock_description = stock_description.translate(translator)
+                    stock_description = stock_description.lower()
 
-        stock_list.append(news_id)
-        stock_file.write(news_id + ",")
+                    if news_meta_keywords is None:
+                        meta_description_list.append(False)
+                    else:
+                        meta_description_list.append(any(stock_description in item for item in news_meta_keywords))
+                    if news_description is None:
+                        meta_description_list.append(False)
+                    else:
+                        meta_description_list.append(stock_description in news_description.lower())
+
+                    found = True in meta_description_list
+                    if found == True:
+                        print("Found, Stock ID: ", stock_id, " News ID: ", news_id)
+                        mongo_object.update_list(CONSTANTS.COLLECTION_STOCK, {"_id": stock_id}, {'newsLinks': news_id})
+
+                    stock_list.append(news_id)
+                    stock_file.write(news_id + ",")
+
+                except StopIteration:
+                    stock_cursor.close()
+                    break
+
+                except Exception as e:
+                    print("From Stock: ", str(e))
+                    stock_cursor.close()
+                    break
+
 
 def update_news_collection(mongo_object, document1, document2):
     document1_objectId = ObjectId(document1)
@@ -112,7 +108,7 @@ def run_document_similarity(mongo_object, dict_documents):
     tfidf = TFIDF()
     result = tfidf.compute_keywords(dict_documents)
     dsTFIDF = DisjointSet()
-
+    # counter = 0
     for docs_id1, docs_score1 in result.items():
         for docs_id2, docs_score2 in result.items():
             if docs_id1 == docs_id2:
@@ -121,37 +117,70 @@ def run_document_similarity(mongo_object, dict_documents):
             docs_score2_value = list(docs_score2[0].values())
 
             similarity_score = cosine_similarity(docs_score1_value, docs_score2_value)
+            # counter += 1
 
             if similarity_score >= CONSTANTS.SIMILARITY_THRESHOLD:
                 dsTFIDF.add(docs_id1, docs_id2)
                 update_news_collection(mongo_object, docs_id1, docs_id2)
 
+    # print("Similarity Score count size: ", counter)
+    print("Groups: ", dsTFIDF.group)
     return len(dsTFIDF.group), dsTFIDF.group
 
 
 def main():
     mongoOb = MongoDB()
     db = mongoOb.initialzie()
-    # collection = db[CONSTANTS.COLLECTION_PROCESSED]
+    news_collection = db[CONSTANTS.COLLECTION_PROCESSED]
+    pageSize = CONSTANTS.BATCH_SIZE
+    dict_documents = collections.defaultdict(list)
 
-    counter = 1
-    while True:
-        stats = db.command('collStats', CONSTANTS.COLLECTION_PROCESSED)
-        count = stats['count']
-        # print(stats)
+    # get first ID and process it !
+    first_news = news_collection.find_one({},
+                                          projection={'_id': True, 'cleaned_body': True, 'country': True,
+                                                      'publish_date': True, 'meta_keywords': True}
+                                          )
+    completed_page_rows = 1
+    stock_matcher(mongoOb, first_news)
+    object_id = str(first_news.get("_id")).strip()
+    cleaned_body = first_news.get("cleaned_body")
+    country = first_news.get("country")
+    if country == "us":
+        dict_documents[object_id].append(cleaned_body)
 
-        # if count > 0 and count%CONSTANTS.BATCH_SIZE == 0:
-        batch_count = counter * CONSTANTS.BATCH_SIZE
+    last_id = first_news["_id"]
 
-        print("counter value: ", batch_count)
-        dict_documents = add_documents(mongoOb, batch_count)
-        size, group = run_document_similarity(mongoOb, dict_documents)
+    # get the next page of documents (read-ahead programming style)
+    next_results = news_collection.find({"_id": {"$gt": last_id}},
+                                        projection={'_id': True, 'cleaned_body': True, 'country': True,
+                                                    'publish_date': True, 'meta_keywords': True},
+                                        no_cursor_timeout=True).limit(pageSize)
 
-        print(batch_count, " matched documents: ", size)
+    # keep getting pages until there are no more
+    while next_results.count() > 0:
 
-        if batch_count >= count:
-            break
+        for ii, document in enumerate(next_results):
 
-        counter += 1
+            stock_matcher(mongoOb, document)
+            object_id = str(document.get("_id")).strip()
+            cleaned_body = document.get("cleaned_body")
+            country = document.get("country")
+            if country == "us":
+                dict_documents[object_id].append(cleaned_body)
+
+            completed_page_rows += 1
+            if completed_page_rows % pageSize == 0:
+                size, group = run_document_similarity(mongoOb, dict_documents)
+                print("Processed documents: ", completed_page_rows, ", Matched documents: ", size)
+
+            last_id = document["_id"]
+
+        next_results = news_collection.find({"_id": {"$gt": last_id}},
+                                            projection={'_id': True, 'cleaned_body': True, 'country': True,
+                                                        'publish_date': True, 'meta_keywords': True},
+                                            no_cursor_timeout=True).limit(pageSize)
+
+    print("\nNo More Records. Stopping iterations.\n")
+
 if __name__ == '__main__':
     main()
