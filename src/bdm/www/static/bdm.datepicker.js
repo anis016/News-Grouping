@@ -1,11 +1,21 @@
 $(document).ready(function(){
-  var date_input=$('input[name="date"]'); //our date input has the name "date"
+  var startDate=$('input[name="startDate"]'); //our date input has the name "date"
   var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
   var options={
-	format: 'mm/dd/yyyy',
+	format: 'yyyy-mm-dd',
 	container: container,
 	todayHighlight: true,
 	autoclose: true,
   };
-  date_input.datepicker(options);
+  startDate.datepicker(options);
+
+  var endDate=$('input[name="endDate"]'); //our date input has the name "date"
+  var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
+  var options={
+	format: 'yyyy-mm-dd',
+	container: container,
+	todayHighlight: true,
+	autoclose: true,
+  };
+  endDate.datepicker(options);
 })

@@ -37,8 +37,71 @@
     <script type="text/javascript" src='{% static "bootstrap.min.js" %}'></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
     <script type="text/javascript" src='{% static "bdm.datepicker.js" %}'></script> 
-    <script src="https://code.highcharts.com/highcharts.js"></script>    
-    <script type="text/javascript" src='{% static "bdm.stockchart.js" %}'></script>
+    {% if stockChart %}
+    <script src='{% static "gstatic.charts.loader.js" %}'></script>
+    <script type="text/javascript">
+	   	var stockDateVal = "{{stockDateVal}}";
+		var stockCloseVal = "{{stockCloseVal}}";
+//		console.log(typeof stockDateVal)
+//		console.log(stockDateVal)
+//		console.log(typeof stockCloseVal)
+//		console.log(stockCloseVal)
+		
+		var closeArrray = stockCloseVal.split(',').map(Number);
+		
+//		console.log(typeof closeArrray)
+//		console.log(closeArrray)
+		
+		var dateArray = stockDateVal.split(',').map(Number);
+		
+		var dataRows = []
+		dateArray.forEach(function (value, i) {
+			if(value){
+				item = [new Date(value*1000), closeArrray[i]]
+				dataRows.push(item)
+			}						
+		});
+		
+//		console.log(typeof dataRows)
+//		console.log(dataRows)
+//		console.log(typeof dateArray)
+//		console.log(dateArray)
+		
+		google.charts.load('current', {
+			  callback: function () {
+				var data = new google.visualization.DataTable();
+				data.addColumn('date', 'Date');
+				data.addColumn('number', 'Closed Price');
+
+
+				data.addRows(dataRows);
+			
+				var tickMarks = [];
+				for (var i = 0; i < data.getNumberOfRows(); i++) {
+				  tickMarks.push(data.getValue(i, 0));
+				}
+			
+				var options = {
+				  chart: {
+					title: 'Stocks',
+				  },
+				  legend: { position:'none' },
+				  width: '100%',
+				  pointSize: 10,
+				  explorer: { actions: ['dragToZoom', 'rightClickToReset'] },
+				  hAxis: {
+					format: 'MM/dd/yyyy',
+					ticks: tickMarks
+				  }
+				};
+			
+				var chart = new google.charts.Line(document.getElementById('stockchart'));
+				chart.draw(data, google.charts.Line.convertOptions(options));
+			  },
+			  packages: ['corechart', 'line']
+		});
+	</script>
+    {% endif %}
   </head>
 
   <body>
@@ -67,14 +130,20 @@
       <div class="starter-template" >
           <div class="row">
             <div class="col-xs-6 col-lg-4">
-                <form action="bdm/stock-news/">
+                <form action="/bdm/stock-news/" method="post">
+                  {% csrf_token %}
                 <div class="form-group">
-                  <label for="stocknews">Ticker:</label>
-                  <input type="text" class="form-control" id="stocknews" placeholder="Enter Ticker" name="stocknews">
+                  <label for="ticker">Ticker:</label>
+                  <input type="text" class="form-control" id="ticker" placeholder="Enter Ticker" name="ticker" value="{% if ticker %} {{ ticker }} {% endif %}">
+                  <input type="hidden" class="form-control" id="page" name="page" value="1"/>
                 </div>
                 <div class="form-group">
-                  <label for="date">Date:</label>
-                  <input class="form-control" id="date" name="date" placeholder="MM/DD/YYY" type="text"/>
+                  <label for="startDate">From:</label>
+                  <input class="form-control" id="startDate" name="startDate" placeholder="YYYY-MM-DD" type="text" value="{% if startDate %} {{ startDate }} {% endif %}"/>
+                </div>
+                <div class="form-group">
+                  <label for="endDate">To:</label>
+                  <input class="form-control" id="endDate" name="endDate" placeholder="YYYY-MM-DD" type="text" value="{% if endDate %} {{ endDate }} {% endif %}"/>
                 </div>
                 <button type="search" class="btn btn-default">Search</button>
               </form>
@@ -84,10 +153,10 @@
             	<div id="stockchart" style="width:100%; height:400px;"></div>
             </div>
           </div>
-        {% if similarDocs %}
+        {% if news %}
           <div class="row">
           	<div class="col-sm-12" >
-              <h3 style="margin-bottom:10px;">Similar News</h3>
+              <h3 style="margin-bottom:10px;">Stock Related News</h3>
                 <table class="table table-striped">
                   <thead>
                     <tr>
@@ -96,18 +165,34 @@
                     </tr>
                   </thead>
                   <tbody>
-                  {% for news in similarDocs %}
+                  {% for n in news %}
                       <tr>
-                        <td style="text-align:center;">{{ news.id }}</td>
-                        <td style="text-align:center;"><a href="/bdm/detail?obj={{ news|mongo_id }}">{{ news.cleaned_title }}</a></td>
+                        <td style="text-align:center;">{{ n.id }}</td>
+                        <td style="text-align:center;"><a href="/bdm/detail?obj={{ n|mongo_id }}">{{ n.cleaned_title }}</a></td>
                       </tr>
                   {% endfor %}
                   </tbody>
                 </table>
                 <ul class="pager">
-    				<li class="previous"><a href="#">Previous</a></li>
-    				<li class="next"><a href="#">Next</a></li>
-  				</ul>
+                  {% if nxtPage %}
+                    <form action="/bdm/stock-news" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" class="form-control" id="nxtPage" name="page" value="{{ nxtPage }}"/>
+                        <input type="hidden" class="form-control" id="nxtTicker" name="ticker" value="{{ ticker }}"/>
+                        <input type="hidden" class="form-control" id="nxtDate" name="date" value="{{ date }}"/>
+                        <li class="next"><button type="submit" class="btn btn-default">Next</button></li>
+                    </form>
+                    {% endif %}
+                    {% if prevPage %}
+                    <form action="/bdm/stock-news" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" class="form-control" id="prevPage" name="page" value="{{ prevPage }}"/>
+                        <input type="hidden" class="form-control" id="prevTicker" name="ticker" value="{{ ticker }}"/>
+                        <input type="hidden" class="form-control" id="prevDate" name="date" value="{{ date }}"/>
+                        <li class="previous"><button type="submit" class="btn btn-default">Previous</button></li>
+                    </form>
+                    {% endif %}
+                </ul>
             </div>
           </div>
         {% endif %}
