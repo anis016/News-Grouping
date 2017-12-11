@@ -34,26 +34,55 @@
     <script type="text/javascript" src='{% static "jquery.min.js" %}'></script>
     <script type="text/javascript" src='{% static "bootstrap.min.js" %}'></script>
     {% if similarNews %}
-		<script src='{% static "gstatic.charts.loader.js" %}'></script>
-        <script type="text/javascript">
-	   	  var similarNews = "{{similarNews}}";
-		  var unlikeNews = "{{unlikeNews}}";	
-          google.charts.load('current', {'packages':['corechart']});
-          google.charts.setOnLoadCallback(drawChart);
-    
-          function drawChart() {
-            var data = google.visualization.arrayToDataTable([
-              ['News Match', 'Propotion of current news similarity'],															  
-              ['Similar News', parseFloat(similarNews)],
-              ['Unlike News',  parseFloat(unlikeNews)]
-            ]);
-            var options = {
-              title: 'Similarity Proportion'
+	<script type="text/javascript" src='{% static "highcharts.js" %}'></script>  
+	<script language = "JavaScript">
+         $(document).ready(function() {
+	   	   var similarNews = "{{similarNews}}";
+		   var unlikeNews = "{{unlikeNews}}";	
+									
+            var chart = {
+               plotBackgroundColor: null,
+               plotBorderWidth: null,
+               plotShadow: false
             };
-            var chart = new google.visualization.PieChart(document.getElementById('chart'));
-            chart.draw(data, options);
-          }
-        </script>
+            var title = {
+               text: 'Matching Proportions'   
+            };
+            var tooltip = {
+               pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            };
+            var plotOptions = {
+               pie: {
+                  allowPointSelect: true,
+                  cursor: 'pointer',
+                  
+                  dataLabels: {
+                     enabled: true,
+                     format: '<b>{point.name}%</b>: {point.percentage:.1f} %',
+                     style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor)||
+                        'black'
+                     }
+                  }
+               }
+            };
+            var series = [{
+               type: 'pie',
+               name: 'News',
+               data: [
+				  ['Similar News', parseFloat(similarNews)],
+				  ['Unlike News',  parseFloat(unlikeNews)]
+               ]
+            }];
+            var json = {};   
+            json.chart = chart; 
+            json.title = title;     
+            json.tooltip = tooltip;  
+            json.series = series;
+            json.plotOptions = plotOptions;
+            $('#chart').highcharts(json);  
+         });
+     </script>
     {% endif %}
   </head>
 
