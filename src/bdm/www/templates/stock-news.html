@@ -45,42 +45,43 @@
 //		console.log(typeof stockDateVal)
 //		console.log(stockDateVal)
 //		console.log(typeof stockCloseVal)
-//		console.log(stockCloseVal)
-		
+//        console.log(stockCloseVal)
+
 		var closeArrray = stockCloseVal.split(',').map(Number);
-		
+
 //		console.log(typeof closeArrray)
 //		console.log(closeArrray)
-		
+
 		var dateArray = stockDateVal.split(',').map(Number);
-		
+
 		var dataRows = []
 		dateArray.forEach(function (value, i) {
 			if(value){
 				item = [new Date(value*1000), closeArrray[i]]
 				dataRows.push(item)
-			}						
+			}
 		});
-		
+
 //		console.log(typeof dataRows)
 //		console.log(dataRows)
 //		console.log(typeof dateArray)
 //		console.log(dateArray)
-		
+
 		google.charts.load('current', {
 			  callback: function () {
 				var data = new google.visualization.DataTable();
 				data.addColumn('date', 'Date');
 				data.addColumn('number', 'Closed Price');
 
-
 				data.addRows(dataRows);
-			
+                // data.addRows([ [new Date(2016, 8, 6), 10],
+                    //            [new Date(2016, 7, 3), 20] ]);
+
 				var tickMarks = [];
 				for (var i = 0; i < data.getNumberOfRows(); i++) {
 				  tickMarks.push(data.getValue(i, 0));
 				}
-			
+
 				var options = {
 				  chart: {
 					title: 'Stocks',
@@ -94,7 +95,7 @@
 					ticks: tickMarks
 				  }
 				};
-			
+
 				var chart = new google.charts.Line(document.getElementById('stockchart'));
 				chart.draw(data, google.charts.Line.convertOptions(options));
 			  },
@@ -153,7 +154,9 @@
             	<div id="stockchart" style="width:100%; height:400px;"></div>
             </div>
           </div>
-        {% if news %}
+
+        {{ grouped_news.size }}
+        {% if grouped_news.size %}
           <div class="row">
           	<div class="col-sm-12" >
               <h3 style="margin-bottom:10px;">Stock Related News</h3>
@@ -165,34 +168,13 @@
                     </tr>
                   </thead>
                   <tbody>
-                  {% for n in news %}
+                  {% for key, value in grouped_news.items %}
                       <tr>
-                        <td style="text-align:center;">{{ n.id }}</td>
-                        <td style="text-align:center;"><a href="/bdm/detail?obj={{ n|mongo_id }}">{{ n.cleaned_title }}</a></td>
+                        <li> {{ key }}: {{ value }}</li>
                       </tr>
                   {% endfor %}
                   </tbody>
                 </table>
-                <ul class="pager">
-                  {% if nxtPage %}
-                    <form action="/bdm/stock-news" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" class="form-control" id="nxtPage" name="page" value="{{ nxtPage }}"/>
-                        <input type="hidden" class="form-control" id="nxtTicker" name="ticker" value="{{ ticker }}"/>
-                        <input type="hidden" class="form-control" id="nxtDate" name="date" value="{{ date }}"/>
-                        <li class="next"><button type="submit" class="btn btn-default">Next</button></li>
-                    </form>
-                    {% endif %}
-                    {% if prevPage %}
-                    <form action="/bdm/stock-news" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" class="form-control" id="prevPage" name="page" value="{{ prevPage }}"/>
-                        <input type="hidden" class="form-control" id="prevTicker" name="ticker" value="{{ ticker }}"/>
-                        <input type="hidden" class="form-control" id="prevDate" name="date" value="{{ date }}"/>
-                        <li class="previous"><button type="submit" class="btn btn-default">Previous</button></li>
-                    </form>
-                    {% endif %}
-                </ul>
             </div>
           </div>
         {% endif %}

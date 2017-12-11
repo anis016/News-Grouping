@@ -1,5 +1,6 @@
+import collections
+
 from django.http import HttpResponse
-from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
 from django.template import RequestContext
 from mongo.MongoDB import MongoDB
@@ -40,19 +41,40 @@ def stock(request):
         startDate = request.POST.get('startDate', '').strip()
         endDate = request.POST.get('endDate', '').strip()
 
-        stocks = mongoOb.find("stockCollection", {"$and": [{"Ticker":ticker}, {"Date": {"$gte": startDate, "$lte": endDate}}]})
+        stocks = mongoOb.find(CONSTANTS.COLLECTION_STOCK,
+                              {"$and": [
+                                  {"Ticker": ticker},
+                                  {"Date": {"$gte": startDate, "$lte": endDate}}
+                              ]})
 
         stockCloseVal = []
         stockDateVal = []
-        for s in stocks:
-            stockDateVal.append(time.mktime(datetime.strptime(s.get('Date'), "%Y-%m-%d").timetuple()))
-            stockCloseVal.append(float (s.get('Adj_Close')))
+        connected_news_list = collections.defaultdict(list)
+        for stock in stocks:
+            stockDateVal.append(time.mktime(datetime.strptime(stock.get('Date'), "%Y-%m-%d").timetuple()))
+            stockCloseVal.append(float (stock.get('Adj_Close')))
+
+            news_link_lists = stock["newsLinks"]
+            for item in news_link_lists:
+                if item not in connected_news_list[stock["Date"]]:
+                    connected_news_list[stock["Date"]].append(item)
+
+        if len(connected_news_list) > 0:
+            connected_news_list["size"] = len(connected_news_list)
 
         stockDate = ','.join(map(str, stockDateVal))
         stockClose = ','.join(map(str, stockCloseVal))
 
         if(stocks.count() != 0):
-            return render(request, "stock-news.html", {'stockDateVal': stockDate, 'stockCloseVal': stockClose, 'ticker': ticker, 'startDate': startDate, 'endDate': endDate,'stockChart': True})
+            data = {'stockDateVal': stockDate,
+                    'stockCloseVal': stockClose,
+                    'ticker': ticker,
+                    'startDate': startDate,
+                    'endDate': endDate,
+                    'grouped_news': connected_news_list,
+                    'stockChart': True}
+
+            return render(request, "stock-news.html", data)
         else:
             return render(request, "stock-news.html", {})
     else:
