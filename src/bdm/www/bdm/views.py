@@ -123,10 +123,11 @@ def detail(request):
         #return HttpResponse(offset)
 
         documents = []
-        for x in range(offset, until):
-            if (connected[x] != ""):
-                print(connected[x])
-                documents.append(getSimilarNews(connected[x]))
+        if len(connected) > 0:
+            for x in range(offset, until):
+                if (connected[x]):
+                    # print(connected[x])
+                    documents.append(getSimilarNews(connected[x]))
         #for docId in connected:
             #if(docId != ""):
                 #documents.append(getSimilarNews(docId))
