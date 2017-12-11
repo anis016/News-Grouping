@@ -92,23 +92,37 @@ def stock(request):
 
 def detail(request):
     mongoOb = MongoDB()
-    mongoOb.initialzie()
+    db = mongoOb.initialzie()
+    stats = db.command("collstats", CONSTANTS.COLLECTION_PROCESSED)
+    count = stats["count"]
     if request.method == 'GET' and request.GET.get('obj', '') != "":
         obj = request.GET.get('obj', '').strip()
         page = int(request.GET.get('page', '').strip()) if request.GET.get('page', '') else 1
-        totalNews = mongoOb.find(CONSTANTS.COLLECTION_PROCESSED).count()
-        news = mongoOb.find(CONSTANTS.COLLECTION_PROCESSED, {"_id": ObjectId(obj)})
-        for record in news:
-            cleaned_title = record['cleaned_title']
-            url = record['url']
-            connected = record['connected']
+        # totalNews = mongoOb.find(CONSTANTS.COLLECTION_PROCESSED).count()
+        totalNews = count
 
-        connected.remove("None") if connected[0]=="None" else ''
+        # news = mongoOb.find(CONSTANTS.COLLECTION_PROCESSED, {"_id": ObjectId(obj)})
+        news_collection = db[CONSTANTS.COLLECTION_PROCESSED]
+        news = news_collection.find_one({"_id": ObjectId(obj)},
+                             projection={'_id': True, 'cleaned_title': True, 'url': True,
+                                         'connected': True},
+                             no_cursor_timeout=True)
+
+        cleaned_title = news['cleaned_title']
+        url = news['url']
+        connected = news['connected']
+
+        if connected[0] == "None":
+            connected.remove("None")
+
+        # for pie chart
         total = len(connected)
         unlikeNews = totalNews - total
         unlikeNewsProp = float(unlikeNews) * (100.0 / totalNews)
         similarNewsProp = float(total) * (100.0 / totalNews)
+        # for pie chart
 
+        # for pagination
         if request.GET.get('next', '') and request.GET.get('until', ''):
             until = int(request.GET.get('until', '')) + 5
         elif (request.GET.get('prev', '') and request.GET.get('until', '')):
@@ -119,18 +133,26 @@ def detail(request):
         limit = 5
         total_pages = math.ceil(total / limit)
         offset = (int(page) - 1) * limit;
-        nxtPage = int(page) + 1 if int(page) < total_pages else ''
+        nxtPage = int(page) + 1 if int(page) < total_pages else ""
         #return HttpResponse(offset)
 
+
+        # Condition: 1
+        until = len(connected) if len(connected) < until else until
+
         documents = []
+        # for it, item in enumerate(connected):
+        #     documents.append(getSimilarNews(item))
+
         if len(connected) > 0:
             for x in range(offset, until):
-                if (connected[x]):
+                #if (connected[x]):
                     # print(connected[x])
-                    documents.append(getSimilarNews(connected[x]))
+                documents.append(getSimilarNews(connected[x]))
         #for docId in connected:
             #if(docId != ""):
                 #documents.append(getSimilarNews(docId))
+
         return render(request, "detail.html", {'cleaned_title': cleaned_title,
                                                'url': url,
                                                'similarNews': similarNewsProp,
