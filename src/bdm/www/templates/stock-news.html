@@ -38,71 +38,73 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
     <script type="text/javascript" src='{% static "bdm.datepicker.js" %}'></script> 
     {% if stockChart %}
-    <script src='{% static "gstatic.charts.loader.js" %}'></script>
-    <script type="text/javascript">
-	   	var stockDateVal = "{{stockDateVal}}";
-		var stockCloseVal = "{{stockCloseVal}}";
-//		console.log(typeof stockDateVal)
-//		console.log(stockDateVal)
-//		console.log(typeof stockCloseVal)
-//        console.log(stockCloseVal)
-
-		var closeArrray = stockCloseVal.split(',').map(Number);
-
-//		console.log(typeof closeArrray)
-//		console.log(closeArrray)
-
-		var dateArray = stockDateVal.split(',').map(Number);
-
-		var dataRows = []
-		dateArray.forEach(function (value, i) {
-			if(value){
-				item = [new Date(value*1000), closeArrray[i]]
-				dataRows.push(item)
-			}
-		});
-
-//		console.log(typeof dataRows)
-//		console.log(dataRows)
-//		console.log(typeof dateArray)
-//		console.log(dateArray)
-
-		google.charts.load('current', {
-			  callback: function () {
-				var data = new google.visualization.DataTable();
-				data.addColumn('date', 'Date');
-				data.addColumn('number', 'Closed Price');
-
-				data.addRows(dataRows);
-                // data.addRows([ [new Date(2016, 8, 6), 10],
-                    //            [new Date(2016, 7, 3), 20] ]);
-
-				var tickMarks = [];
-				for (var i = 0; i < data.getNumberOfRows(); i++) {
-				  tickMarks.push(data.getValue(i, 0));
-				}
-
-				var options = {
-				  chart: {
-					title: 'Stocks',
-				  },
-				  legend: { position:'none' },
-				  width: '100%',
-				  pointSize: 10,
-				  explorer: { actions: ['dragToZoom', 'rightClickToReset'] },
-				  hAxis: {
-					format: 'MM/dd/yyyy',
-					ticks: tickMarks
-				  }
-				};
-
-				var chart = new google.charts.Line(document.getElementById('stockchart'));
-				chart.draw(data, google.charts.Line.convertOptions(options));
-			  },
-			  packages: ['corechart', 'line']
-		});
-	</script>
-    {% endif %}
+	<script type="text/javascript" src='{% static "highcharts.js" %}'></script>  
+	<script language = "JavaScript">
+         $(document).ready(function() {  									
+			var stockDateVal = "{{stockDateVal}}";
+			var stockCloseVal = "{{stockCloseVal}}";		
+			var closeArrray = stockCloseVal.split(',').map(Number);
+			var dateArray = stockDateVal.split(',').map(Number);
+			
+			var dataRows = []
+			dateArray.forEach(function (value, i) {
+				if(value){
+					item = [new Date(value*1000), closeArrray[i]]
+					dataRows.push(item)
+				}						
+			});						
+			console.log(dataRows)
+            var chart = {
+               type: 'spline'      
+            }; 
+            var title = {
+               text: 'Stocks'   
+            };
+            var xAxis = {
+               type: 'datetime',
+               dateTimeLabelFormats: { // don't display the dummy year
+                  month: '%e. %b',
+                  year: '%b'
+               },
+               title: {
+                  text: 'Date'
+               }
+            };
+            var yAxis = {
+               title: {
+                  text: 'Closed Price'
+               },
+               min: 0
+            };
+            var tooltip = {
+               headerFormat: '<b>{series.name}</b><br>',
+               pointFormat: '{point.x:%e. %b}: {point.y:.2f} m'
+            };
+            var plotOptions = {
+               spline: {
+                  marker: {
+                     enabled: true
+                  }
+               }
+            };
+            var series = [ 
+               {
+                  name: 'Stock TimeLine',
+                  data: dataRows
+               }];
+            
+            var json = {};
+            json.chart = chart;
+            json.title = title;
+            json.tooltip = tooltip;
+            json.xAxis = xAxis;
+            json.yAxis = yAxis;  
+            json.series = series;
+            json.plotOptions = plotOptions;
+            $('#stockchart').highcharts(json);
+         });
+      </script>
+     {% endif %}
   </head>
 
   <body>
