@@ -112,6 +112,28 @@
                 </table>
             </div>
           </div>
+          <ul class="pager">
+            {% if nxtPage %}
+              <form action="/bdm/detail" method="get">
+                  {% csrf_token %}
+                  <input type="hidden" class="form-control" id="nxtPage" name="page" value="{{ nxtPage }}"/>
+                  <input type="hidden" class="form-control" name="until" value="{{ until }}"/>
+                  <input type="hidden" class="form-control" name="next" value="1"/>                  
+                  <input type="hidden" class="form-control" id="nxtPageObjID" name="obj" value="{{ obj }}"/>
+                  <li class="next"><button type="submit" class="btn btn-default">Next</button></li>
+              </form>
+              {% endif %}
+              {% if prevPage %}
+              <form action="/bdm/detail?obj={{ obj }}" method="get">
+                  {% csrf_token %}
+                  <input type="hidden" class="form-control" id="prevPage" name="page" value="{{ prevPage }}"/>
+                  <input type="hidden" class="form-control" name="until" value="{{ until }}"/>
+                  <input type="hidden" class="form-control" name="prev" value="1"/>
+                  <input type="hidden" class="form-control" id="prevPageObjID" name="obj" value="{{ obj }}"/>
+                  <li class="previous"><button type="submit" class="btn btn-default">Previous</button></li>
+              </form>
+              {% endif %}
+          </ul>
         {% endif %}
       </div>
     </div><!-- /.container -->

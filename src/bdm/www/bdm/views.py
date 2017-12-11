@@ -17,13 +17,13 @@ def index(request):
     mongoOb.initialzie()
     if request.method == 'POST' and request.POST.get('txtSearch', '') != "" and request.POST.get('page', '') != "":
         txtSearch = request.POST.get('txtSearch', '').strip()
-        total = mongoOb.find("samplenewsSubsetCollection", {"$or": [{"cleaned_title": {"$regex": u".*" + txtSearch + ".*"}}, {"cleaned_body": {"$regex": u".*" + txtSearch + ".*"}}]}
+        total = mongoOb.find(CONSTANTS.COLLECTION_PROCESSED, {"$or": [{"cleaned_title": {"$regex": u".*" + txtSearch + ".*"}}, {"cleaned_body": {"$regex": u".*" + txtSearch + ".*"}}]}
 ).count()
-        limit = 2
+        limit = 1
         total_pages = math.ceil(total / limit)
-        offset = (int(request.POST.get('page', '')) - 1) * 2;
+        offset = (int(request.POST.get('page', '')) - 1) * limit;
         nxtPage = int(request.POST.get('page', '')) + 1 if int(request.POST.get('page', '')) < total_pages else ''
-        news = mongoOb.find("samplenewsSubsetCollection", {"$or": [{"cleaned_title": {"$regex": u".*" + txtSearch + ".*"}}, {"cleaned_body": {"$regex": u".*" + txtSearch + ".*"}}]}
+        news = mongoOb.find(CONSTANTS.COLLECTION_PROCESSED, {"$or": [{"cleaned_title": {"$regex": u".*" + txtSearch + ".*"}}, {"cleaned_body": {"$regex": u".*" + txtSearch + ".*"}}]}
 ).skip(offset).limit(limit)
         if(news.count() != 0):
             return render(request, "index.html", {'news': news, 'txtSearch': txtSearch, 'nxtPage': nxtPage,  'prevPage': int(request.POST.get('page', '')) - 1})
@@ -40,7 +40,7 @@ def stock(request):
         startDate = request.POST.get('startDate', '').strip()
         endDate = request.POST.get('endDate', '').strip()
 
-        stocks = mongoOb.find("stockCollection", {"$and": [{"Ticker":ticker}, {"Date": {"$gte": startDate, "$lte": endDate}}]})
+        stocks = mongoOb.find(CONSTANTS.COLLECTION_STOCK, {"$and": [{"Ticker":ticker}, {"Date": {"$gte": startDate, "$lte": endDate}}]})
 
         stockCloseVal = []
         stockDateVal = []
@@ -62,29 +62,58 @@ def detail(request):
     mongoOb = MongoDB()
     mongoOb.initialzie()
     if request.method == 'GET' and request.GET.get('obj', '') != "":
-        totalNews = mongoOb.find("samplenewsSubsetCollection").count()
-        news = mongoOb.find("samplenewsSubsetCollection", {"_id": ObjectId(request.GET.get('obj', '').strip())})
+        obj = request.GET.get('obj', '').strip()
+        page = int(request.GET.get('page', '').strip()) if request.GET.get('page', '') else 1
+        totalNews = mongoOb.find(CONSTANTS.COLLECTION_PROCESSED).count()
+        news = mongoOb.find(CONSTANTS.COLLECTION_PROCESSED, {"_id": ObjectId(obj)})
         for record in news:
             cleaned_title = record['cleaned_title']
             url = record['url']
             connected = record['connected']
 
         connected.remove("None") if connected[0]=="None" else ''
-        unlikeNews = totalNews - len(connected)
+        total = len(connected)
+        unlikeNews = totalNews - total
         unlikeNewsProp = float(unlikeNews) * (100.0 / totalNews)
-        similarNewsProp = float(len(connected)) * (100.0 / totalNews)
+        similarNewsProp = float(total) * (100.0 / totalNews)
+
+        if request.GET.get('next', '') and request.GET.get('until', ''):
+            until = int(request.GET.get('until', '')) + 1
+        elif (request.GET.get('prev', '') and request.GET.get('until', '')):
+            until = int(request.GET.get('until', '')) - 1
+        else:
+            until = 1
+
+        limit = 1
+        total_pages = math.ceil(total / limit)
+        offset = (int(page) - 1) * limit;
+        nxtPage = int(page) + 1 if int(page) < total_pages else ''
+        #return HttpResponse(offset)
+
         documents = []
-        for docId in connected:
-            if(docId != ""):
-                documents.append(getSimilarNews(docId))
-        return render(request, "detail.html", {'cleaned_title': cleaned_title, 'url': url, 'similarNews': similarNewsProp, 'unlikeNews': unlikeNewsProp, 'similarDocs': documents})
+        for x in range(offset, until):
+            if (connected[x] != ""):
+                print(connected[x])
+                documents.append(getSimilarNews(connected[x]))
+        #for docId in connected:
+            #if(docId != ""):
+                #documents.append(getSimilarNews(docId))
+        return render(request, "detail.html", {'cleaned_title': cleaned_title,
+                                               'url': url,
+                                               'similarNews': similarNewsProp,
+                                               'unlikeNews': unlikeNewsProp,
+                                               'similarDocs': documents,
+                                               'obj': obj,
+                                               'until': until,
+                                               'nxtPage': nxtPage,
+                                               'prevPage': int(page) - 1})
     else:
         return render(request, "detail.html", {})
 
 def getSimilarNews(docId):
     mongoOb = MongoDB()
     mongoOb.initialzie()
-    similarNews = mongoOb.find_one("samplenewsSubsetCollection", {"_id": ObjectId(docId)})
+    similarNews = mongoOb.find_one(CONSTANTS.COLLECTION_PROCESSED, {"_id": ObjectId(docId)})
     return similarNews
 
 def about(request):
