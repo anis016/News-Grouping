@@ -20,7 +20,7 @@ def index(request):
         txtSearch = request.POST.get('txtSearch', '').strip()
         total = mongoOb.find(CONSTANTS.COLLECTION_PROCESSED, {"$or": [{"cleaned_title": {"$regex": u".*" + txtSearch + ".*"}}, {"cleaned_body": {"$regex": u".*" + txtSearch + ".*"}}]}
 ).count()
-        limit = 1
+        limit = 5
         total_pages = math.ceil(total / limit)
         offset = (int(request.POST.get('page', '')) - 1) * limit;
         nxtPage = int(request.POST.get('page', '')) + 1 if int(request.POST.get('page', '')) < total_pages else ''
@@ -110,13 +110,13 @@ def detail(request):
         similarNewsProp = float(total) * (100.0 / totalNews)
 
         if request.GET.get('next', '') and request.GET.get('until', ''):
-            until = int(request.GET.get('until', '')) + 1
+            until = int(request.GET.get('until', '')) + 5
         elif (request.GET.get('prev', '') and request.GET.get('until', '')):
-            until = int(request.GET.get('until', '')) - 1
+            until = int(request.GET.get('until', '')) - 5
         else:
-            until = 1
+            until = 5
 
-        limit = 1
+        limit = 5
         total_pages = math.ceil(total / limit)
         offset = (int(page) - 1) * limit;
         nxtPage = int(page) + 1 if int(page) < total_pages else ''
