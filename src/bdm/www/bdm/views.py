@@ -27,7 +27,10 @@ def index(request):
         news = mongoOb.find(CONSTANTS.COLLECTION_PROCESSED, {"$or": [{"cleaned_title": {"$regex": u".*" + txtSearch + ".*"}}, {"cleaned_body": {"$regex": u".*" + txtSearch + ".*"}}]}
 ).skip(offset).limit(limit)
         if(news.count() != 0):
-            return render(request, "index.html", {'news': news, 'txtSearch': txtSearch, 'nxtPage': nxtPage,  'prevPage': int(request.POST.get('page', '')) - 1})
+            return render(request, "index.html", {'news': news,
+                                                  'txtSearch': txtSearch,
+                                                  'nxtPage': nxtPage,
+                                                  'prevPage': int(request.POST.get('page', '')) - 1})
         else:
             return render(request, "index.html", {})
     else:
@@ -35,7 +38,8 @@ def index(request):
 
 def stock(request):
     mongoOb = MongoDB()
-    mongoOb.initialzie()
+    db = mongoOb.initialzie()
+
     if request.method == 'POST' and request.POST.get('ticker', '') != ""  and request.POST.get('startDate', '') != "" and request.POST.get('endDate', '') != "":
         ticker = request.POST.get('ticker', '').strip()
         startDate = request.POST.get('startDate', '').strip()
@@ -49,18 +53,24 @@ def stock(request):
 
         stockCloseVal = []
         stockDateVal = []
-        connected_news_list = collections.defaultdict(list)
+        news_group_date = []
         for stock in stocks:
             stockDateVal.append(time.mktime(datetime.strptime(stock.get('Date'), "%Y-%m-%d").timetuple()))
             stockCloseVal.append(float (stock.get('Adj_Close')))
 
-            news_link_lists = stock["newsLinks"]
-            for item in news_link_lists:
-                if item not in connected_news_list[stock["Date"]]:
-                    connected_news_list[stock["Date"]].append(item)
+            newsLinks = stock["newsLinks"]
+            if len(newsLinks) > 0:
+                news_object_list = []
+                for news in newsLinks:
+                    news_collection = db[CONSTANTS.COLLECTION_PROCESSED]
+                    news_object = news_collection.find_one({"_id": ObjectId(news)},
+                                                          projection={'_id': True,
+                                                                      'cleaned_title': True}
+                                                          )
+                    news_object_list.append(news_object)
 
-        if len(connected_news_list) > 0:
-            connected_news_list["size"] = len(connected_news_list)
+
+                news_group_date.append([ stock["Date"], news_object_list])
 
         stockDate = ','.join(map(str, stockDateVal))
         stockClose = ','.join(map(str, stockCloseVal))
@@ -71,7 +81,7 @@ def stock(request):
                     'ticker': ticker,
                     'startDate': startDate,
                     'endDate': endDate,
-                    'grouped_news': connected_news_list,
+                    'grouped_news': news_group_date,
                     'stockChart': True}
 
             return render(request, "stock-news.html", data)

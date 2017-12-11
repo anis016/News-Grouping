@@ -155,22 +155,29 @@
             </div>
           </div>
 
-        {{ grouped_news.size }}
-        {% if grouped_news.size %}
+        {% if grouped_news|length > 0 %}
           <div class="row">
           	<div class="col-sm-12" >
               <h3 style="margin-bottom:10px;">Stock Related News</h3>
                 <table class="table table-striped">
                   <thead>
                     <tr>
-                      <th style="text-align:center;">ID</th>
+                      <th style="text-align:center;">Date</th>
                       <th style="text-align:center;">Title</th>
                     </tr>
                   </thead>
                   <tbody>
-                  {% for key, value in grouped_news.items %}
+                  {% for key, value in grouped_news %}
                       <tr>
-                        <li> {{ key }}: {{ value }}</li>
+                        <td style="text-align:center;">{{ key }}</td>
+                        <td style="text-align:center;">
+
+                          {% for news in value %}
+                              {{ forloop.counter }}. <a href="/bdm/detail?obj={{ news|mongo_id }}">{{ news.cleaned_title }}</a>
+                              <br/><br/>
+                          {% endfor %}
+
+                        </td>
                       </tr>
                   {% endfor %}
                   </tbody>
