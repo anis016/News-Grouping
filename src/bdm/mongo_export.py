@@ -30,7 +30,7 @@ def exporting_mongo(document, mongoOb, cnt):
         mongo_title     = utils.get_mongo_value("title", document)
         mongo_country   = utils.get_mongo_value("country", document)
         mongo_timestamp = utils.get_mongo_value("timestamp", document)
-        mongo_connected = utils.get_mongo_value("connected", document)
+        # mongo_connected = utils.get_mongo_value("connected", document)
 
         # Check which one has url. generally check if the string starts has "http", "https", "ftp"
         websites = ["http", "ftp", "https", "www"]
@@ -45,8 +45,8 @@ def exporting_mongo(document, mongoOb, cnt):
             url = mongo_country
         elif len([website for website in websites if website in mongo_timestamp]) > 0:
             url = mongo_timestamp
-        elif len([website for website in websites if website in mongo_connected]) > 0:
-            url = mongo_connected
+        # elif len([website for website in websites if website in mongo_connected]) > 0:
+        #     url = mongo_connected
 
         ## Parsing json
         json = news_scrapperOb.extract_text(url, mongo_timestamp)
@@ -72,7 +72,7 @@ def exporting_mongo(document, mongoOb, cnt):
                 "source": mongo_source,
                 "country": mongo_country,
                 "timestamp": mongo_timestamp,
-                "connected": [mongo_connected],
+                "connected": [],
                 "scraped_title": json_title,
                 "publish_date": str(json_publish_date),  # pymongo date issue occurs, make it string
                 "meta_keywords": json_meta_keywords,
@@ -133,20 +133,20 @@ def mongo_listener(collection, mongo_object):
             document = cursor.next()
 
             # first check if there is a connected field value
-            connected_id = document.get("connected")
-            connected_objectId = "None"
-            if connected_id != "NULL":
-                next_connected_object = mongo_object.find_one(CONSTANTS.COLLECTION_PROCESSED, {'id': connected_id})
-                if next_connected_object is not None:
-                    connected_objectId = next_connected_object["_id"]
-                else:
-                    connected_document = collection.find_one({'id': connected_id})
-                    connected_objectId = exporting_mongo(connected_document, mongo_object, 0)
-                    if str(connected_document['_id']) not in idx_list:
-                        idx_list.append(str(connected_document['_id']))
-                        idx_file.write(str(connected_document['_id']) + ",")
+            # connected_id = document.get("connected")
+            # connected_objectId = "None"
+            # if connected_id != "NULL":
+            #     next_connected_object = mongo_object.find_one(CONSTANTS.COLLECTION_PROCESSED, {'id': connected_id})
+            #     if next_connected_object is not None:
+            #         connected_objectId = next_connected_object["_id"]
+            #     else:
+            #         connected_document = collection.find_one({'id': connected_id})
+            #         connected_objectId = exporting_mongo(connected_document, mongo_object, 0)
+            #         if str(connected_document['_id']) not in idx_list:
+            #             idx_list.append(str(connected_document['_id']))
+            #             idx_file.write(str(connected_document['_id']) + ",")
 
-            document["connected"] = connected_objectId
+            # document["connected"] = connected_objectId
             # document = collection.find_one({'_id': doc['_id']})
             if str(document['_id']) not in idx_list:
                 exporting_mongo(document, mongo_object, 0)
