@@ -20,7 +20,7 @@ def index(request):
         txtSearch = request.POST.get('txtSearch', '').strip()
         total = mongoOb.find(CONSTANTS.COLLECTION_PROCESSED, {"$or": [{"cleaned_title": {"$regex": u".*" + txtSearch + ".*"}}, {"cleaned_body": {"$regex": u".*" + txtSearch + ".*"}}]}
 ).count()
-        limit = 5
+        limit = 12
         total_pages = math.ceil(total / limit)
         offset = (int(request.POST.get('page', '')) - 1) * limit;
         nxtPage = int(request.POST.get('page', '')) + 1 if int(request.POST.get('page', '')) < total_pages else ''
@@ -112,8 +112,12 @@ def detail(request):
         url = news['url']
         connected = news['connected']
 
-        if connected[0] == "None":
-            connected.remove("None")
+        # try:
+        #     if connected[0] == "None":
+        #         connected.remove("None")
+        # except Exception as e:
+        #     print(str(e))
+
 
         # for pie chart
         total = len(connected)

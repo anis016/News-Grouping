@@ -1,7 +1,7 @@
 # import sys
 # print(sys.path)
 
-from src.bdm.mongo.MongoDB import MongoDB
+from mongo.MongoDB import MongoDB
 import csv
 import os
 

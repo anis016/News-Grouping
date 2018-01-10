@@ -100,8 +100,8 @@ def update_news_collection(mongo_object, document1, document2):
     document1_objectId = ObjectId(document1)
     document2_objectId = ObjectId(document2)
 
-    mongo_object.update_list(CONSTANTS.COLLECTION_PROCESSED, {"_id": document1_objectId}, {'connected': document1})
-    mongo_object.update_list(CONSTANTS.COLLECTION_PROCESSED, {"_id": document2_objectId}, {'connected': document2})
+    mongo_object.update_list(CONSTANTS.COLLECTION_PROCESSED, {"_id": document1_objectId}, {'connected': document2})
+    mongo_object.update_list(CONSTANTS.COLLECTION_PROCESSED, {"_id": document2_objectId}, {'connected': document1})
 
 def run_document_similarity(mongo_object, dict_documents):
 

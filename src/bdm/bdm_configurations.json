@@ -3,7 +3,7 @@
     "bdm": [
         {
             "listener_collections": "newsCollection",
-            "processed_collections": "newsCollectionSubsetCollection",
+            "processed_collections": "newsSubsetCollection",
             "matching_collections": [
                 {
                     "stockCollection": "stockCollection"
@@ -12,7 +12,7 @@
             "similarity_measure": "cosine_similarity",
             "similarity_threshold": 0.2,
             "keyword_algorithm": "tf-idf",
-            "batch_size": 1000
+            "batch_size": 10
         }
     ]
 }
