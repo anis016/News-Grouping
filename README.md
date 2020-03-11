@@ -1,6 +1,7 @@
 # Business Data Matching
 
-Research and implement state of the art Data Matching techniques for business relevant data. We propose a business data matching algorithm/system that is based on transitive matching and in the end visualize the results in suitable manner
+Implemented a business data matching algorithm on the daily news from various sources by grouping the relevant news together. 
+This is based on transitive matching and in the end visualized the results in a suitable manner
 
 ### Tools used
 1. Python - 3.6
@@ -16,10 +17,3 @@ Research and implement state of the art Data Matching techniques for business re
 1. `nltk`
 2. `BeautifulSoup`
 3. `newspaper`
-
-### References
-1. Peter Christen. Data Matching Concepts and Techniques for Record Linkage, Entity Resolution, and Duplicate Detection.
-2. https://en.wikipedia.org/wiki/Fuzzy_matching_(computer-assisted_translation)
-3. https://en.wikipedia.org/wiki/Edit_distance
-4. Thomas Bocek, Ela Hunt, David Hausheer, Burkhard Stiller. Fast similarity search in peer-to-peer networks.
-5. Klaus U. SchulzStoyan Mihov . Levenshtein Automata - Fast string correction with Levenshtein automata.
