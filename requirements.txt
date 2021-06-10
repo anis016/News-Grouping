@@ -3,7 +3,7 @@ certifi==2017.7.27.1
 chardet==3.0.4
 cssselect==1.0.1
 datefinder==0.6.1
-Django==1.11.28
+Django==2.2.24
 django-appconf==1.0.2
 feedfinder2==0.0.4
 feedparser==5.2.1
